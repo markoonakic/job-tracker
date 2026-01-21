@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { uploadMedia, deleteMedia } from '../lib/rounds';
 import type { Round, RoundMedia } from '../lib/types';
 import MediaPlayer from './MediaPlayer';
+import api from '../lib/api';
 
 interface Props {
   round: Round;
@@ -59,6 +60,15 @@ export default function RoundCard({ round, onEdit, onDelete }: Props) {
     } catch {
       alert('Failed to delete media');
     }
+  }
+
+  function handleMediaDownload(media: RoundMedia, e: React.MouseEvent) {
+    e.stopPropagation();
+    const url = `${api.defaults.baseURL}/api/rounds/media/${media.id}/download`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = media.file_path.split('/').pop() || 'download';
+    link.click();
   }
 
   return (
@@ -147,14 +157,26 @@ export default function RoundCard({ round, onEdit, onDelete }: Props) {
                     {m.file_path.split('/').pop()}
                   </span>
                 </div>
-                <button
-                  onClick={(e) => handleMediaDelete(m.id, e)}
-                  className="text-muted hover:text-accent-red"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => handleMediaDownload(m, e)}
+                    className="text-muted hover:text-accent-aqua"
+                    title="Download"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => handleMediaDelete(m.id, e)}
+                    className="text-muted hover:text-accent-red"
+                    title="Delete"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             ))}
           </div>

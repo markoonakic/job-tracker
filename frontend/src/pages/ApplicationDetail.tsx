@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getApplication, deleteApplication, uploadCV } from '../lib/applications';
+import { getApplication, deleteApplication } from '../lib/applications';
 import { deleteRound } from '../lib/rounds';
 import type { Application, Round } from '../lib/types';
 import RoundForm from '../components/RoundForm';
 import RoundCard from '../components/RoundCard';
+import DocumentSection from '../components/DocumentSection';
 import Layout from '../components/Layout';
 
 export default function ApplicationDetail() {
@@ -42,15 +43,8 @@ export default function ApplicationDetail() {
     }
   }
 
-  async function handleCVUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const updated = await uploadCV(id!, file);
-      setApplication(updated);
-    } catch {
-      setError('Failed to upload CV');
-    }
+  function handleDocumentUpdate(updated: Application) {
+    setApplication(updated);
   }
 
   async function handleDeleteRound(roundId: string) {
@@ -162,22 +156,7 @@ export default function ApplicationDetail() {
             </div>
           )}
 
-          <div className="flex items-center gap-4 pt-4 border-t border-tertiary">
-            <div className="flex-1">
-              {application.cv_path ? (
-                <span className="text-accent-green text-sm">CV uploaded</span>
-              ) : (
-                <label className="cursor-pointer text-accent-aqua hover:underline text-sm">
-                  Upload CV
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleCVUpload}
-                    className="hidden"
-                  />
-                </label>
-              )}
-            </div>
+          <div className="flex items-center justify-end gap-2 pt-4 border-t border-tertiary">
             <Link
               to={`/applications/${id}/edit`}
               className="px-3 py-1 bg-accent-aqua text-bg-primary rounded text-sm hover:opacity-90"
@@ -191,6 +170,13 @@ export default function ApplicationDetail() {
               Delete
             </button>
           </div>
+        </div>
+
+        <div className="mb-6">
+          <DocumentSection
+            application={application}
+            onUpdate={handleDocumentUpdate}
+          />
         </div>
 
         <div className="bg-secondary rounded-lg p-6">

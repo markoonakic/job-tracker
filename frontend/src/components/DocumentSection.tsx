@@ -1,0 +1,193 @@
+import { useState } from 'react';
+import {
+  uploadCV,
+  uploadCoverLetter,
+  uploadTranscript,
+  deleteCV,
+  deleteCoverLetter,
+  deleteTranscript,
+  getFileUrl,
+  updateApplication,
+} from '../lib/applications';
+import type { Application } from '../lib/types';
+import api from '../lib/api';
+
+interface Props {
+  application: Application;
+  onUpdate: (app: Application) => void;
+}
+
+export default function DocumentSection({ application, onUpdate }: Props) {
+  const [uploading, setUploading] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [transcriptSummary, setTranscriptSummary] = useState(application.transcript_summary || '');
+  const [savingSummary, setSavingSummary] = useState(false);
+
+  async function handleUpload(
+    type: 'cv' | 'cover-letter' | 'transcript',
+    file: File
+  ) {
+    setUploading(type);
+    setError('');
+    try {
+      let updated: Application;
+      if (type === 'cv') {
+        updated = await uploadCV(application.id, file);
+      } else if (type === 'cover-letter') {
+        updated = await uploadCoverLetter(application.id, file);
+      } else {
+        updated = await uploadTranscript(application.id, file);
+      }
+      onUpdate(updated);
+    } catch {
+      setError(`Failed to upload ${type}`);
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  async function handleDelete(type: 'cv' | 'cover-letter' | 'transcript') {
+    if (!confirm(`Remove this ${type}?`)) return;
+    setError('');
+    try {
+      let updated: Application;
+      if (type === 'cv') {
+        updated = await deleteCV(application.id);
+      } else if (type === 'cover-letter') {
+        updated = await deleteCoverLetter(application.id);
+      } else {
+        updated = await deleteTranscript(application.id);
+      }
+      onUpdate(updated);
+    } catch {
+      setError(`Failed to delete ${type}`);
+    }
+  }
+
+  function handlePreview(type: 'cv' | 'cover-letter' | 'transcript') {
+    const url = `${api.defaults.baseURL}${getFileUrl(application.id, type)}`;
+    window.open(url, '_blank');
+  }
+
+  function handleDownload(type: 'cv' | 'cover-letter' | 'transcript') {
+    const url = `${api.defaults.baseURL}${getFileUrl(application.id, type)}`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '';
+    link.click();
+  }
+
+  async function handleSaveSummary() {
+    setSavingSummary(true);
+    try {
+      const updated = await updateApplication(application.id, {
+        transcript_summary: transcriptSummary || undefined,
+      });
+      onUpdate(updated);
+    } catch {
+      setError('Failed to save summary');
+    } finally {
+      setSavingSummary(false);
+    }
+  }
+
+  function renderDocRow(
+    label: string,
+    type: 'cv' | 'cover-letter' | 'transcript',
+    path: string | null
+  ) {
+    const hasFile = Boolean(path);
+    const isUploading = uploading === type;
+
+    return (
+      <div className="flex items-center justify-between py-3 border-b border-tertiary last:border-0">
+        <span className="text-primary font-medium w-28">{label}</span>
+        {hasFile ? (
+          <div className="flex items-center gap-2">
+            <span className="text-accent-green text-sm">Uploaded</span>
+            <button
+              onClick={() => handlePreview(type)}
+              className="px-2 py-1 bg-tertiary text-primary rounded text-xs hover:bg-muted"
+            >
+              Preview
+            </button>
+            <button
+              onClick={() => handleDownload(type)}
+              className="px-2 py-1 bg-tertiary text-primary rounded text-xs hover:bg-muted"
+            >
+              Download
+            </button>
+            <label className="px-2 py-1 bg-tertiary text-primary rounded text-xs hover:bg-muted cursor-pointer">
+              Replace
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleUpload(type, file);
+                }}
+                className="hidden"
+              />
+            </label>
+            <button
+              onClick={() => handleDelete(type)}
+              className="px-2 py-1 bg-accent-red/20 text-accent-red rounded text-xs hover:bg-accent-red/30"
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          <label className="px-3 py-1 bg-accent-aqua text-bg-primary rounded text-sm hover:opacity-90 cursor-pointer">
+            {isUploading ? 'Uploading...' : 'Upload'}
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleUpload(type, file);
+              }}
+              className="hidden"
+              disabled={isUploading}
+            />
+          </label>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-secondary rounded-lg p-6">
+      <h2 className="text-lg font-semibold text-primary mb-4">Documents</h2>
+
+      {error && (
+        <div className="bg-accent-red/20 border border-accent-red text-accent-red px-3 py-2 rounded mb-4 text-sm">
+          {error}
+        </div>
+      )}
+
+      {renderDocRow('CV', 'cv', application.cv_path)}
+      {renderDocRow('Cover Letter', 'cover-letter', application.cover_letter_path)}
+      {renderDocRow('Transcript', 'transcript', application.transcript_path)}
+
+      {application.transcript_path && (
+        <div className="mt-4 pt-4 border-t border-tertiary">
+          <label className="block text-sm text-muted mb-2">Transcript Summary</label>
+          <textarea
+            value={transcriptSummary}
+            onChange={(e) => setTranscriptSummary(e.target.value)}
+            rows={3}
+            placeholder="Key points: GPA, relevant coursework, certifications..."
+            className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua resize-y"
+          />
+          <button
+            onClick={handleSaveSummary}
+            disabled={savingSummary}
+            className="mt-2 px-3 py-1 bg-accent-aqua text-bg-primary rounded text-sm hover:opacity-90 disabled:opacity-50"
+          >
+            {savingSummary ? 'Saving...' : 'Save Summary'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
