@@ -3,12 +3,29 @@ import { listStatuses, createStatus, listRoundTypes, createRoundType } from '../
 import { exportJSON, exportCSV } from '../lib/export';
 import type { Status, RoundType } from '../lib/types';
 import Layout from '../components/Layout';
+import ThemeDropdown from '../components/ThemeDropdown';
 
 const THEMES = [
-  { id: 'gruvbox-dark', name: 'Gruvbox Dark', description: 'Warm, retro groove colors' },
-  { id: 'gruvbox-light', name: 'Gruvbox Light', description: 'Light variant of Gruvbox' },
-  { id: 'nord', name: 'Nord', description: 'Arctic, bluish clean design' },
-  { id: 'dracula', name: 'Dracula', description: 'Dark theme with vibrant colors' },
+  {
+    id: 'gruvbox-dark',
+    name: 'Gruvbox Dark',
+    swatches: ['#282828', '#ebdbb2', '#8ec07c', '#b8bb26', '#fb4934'],
+  },
+  {
+    id: 'gruvbox-light',
+    name: 'Gruvbox Light',
+    swatches: ['#fbf1c7', '#3c3836', '#689d6a', '#98971a', '#cc241d'],
+  },
+  {
+    id: 'nord',
+    name: 'Nord',
+    swatches: ['#2e3440', '#eceff4', '#88c0d0', '#a3be8c', '#bf616a'],
+  },
+  {
+    id: 'dracula',
+    name: 'Dracula',
+    swatches: ['#282a36', '#f8f8f2', '#8be9fd', '#50fa7b', '#ff5555'],
+  },
 ];
 
 function getStoredTheme(): string {
@@ -121,22 +138,11 @@ export default function Settings() {
         <div className="space-y-8">
           <div className="bg-secondary rounded-lg p-6">
             <h2 className="text-lg font-semibold text-primary mb-4">Theme</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {THEMES.map((theme) => (
-                <button
-                  key={theme.id}
-                  onClick={() => handleThemeChange(theme.id)}
-                  className={`p-4 rounded-lg border-2 text-left transition-colors ${
-                    currentTheme === theme.id
-                      ? 'border-accent-aqua bg-tertiary'
-                      : 'border-tertiary hover:border-muted'
-                  }`}
-                >
-                  <span className="text-primary font-medium">{theme.name}</span>
-                  <p className="text-sm text-muted mt-1">{theme.description}</p>
-                </button>
-              ))}
-            </div>
+            <ThemeDropdown
+              themes={THEMES}
+              currentTheme={currentTheme}
+              onChange={handleThemeChange}
+            />
           </div>
 
           <div className="bg-secondary rounded-lg p-6">
