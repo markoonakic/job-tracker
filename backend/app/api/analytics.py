@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
@@ -47,12 +47,20 @@ async def get_sankey_data(
 @router.get("/heatmap", response_model=HeatmapData)
 async def get_heatmap_data(
     year: int | None = None,
+    rolling: bool = False,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    target_year = year or date.today().year
-    start_date = date(target_year, 1, 1)
-    end_date = date(target_year, 12, 31)
+    today = date.today()
+
+    if rolling or (year is None):
+        # Default: rolling 12 months
+        end_date = today
+        start_date = date(today.year - 1, today.month, today.day)
+    else:
+        # Specific year: full calendar year
+        start_date = date(year, 1, 1)
+        end_date = date(year, 12, 31)
 
     result = await db.execute(
         select(Application.applied_at, func.count(Application.id))
