@@ -2,6 +2,8 @@ from datetime import date, datetime
 
 from pydantic import BaseModel
 
+from app.schemas.round import RoundResponse
+
 
 class ApplicationCreate(BaseModel):
     company: str
@@ -45,6 +47,7 @@ class ApplicationResponse(BaseModel):
     applied_at: date
     created_at: datetime
     updated_at: datetime
+    rounds: list[RoundResponse] = []
 
     class Config:
         from_attributes = True

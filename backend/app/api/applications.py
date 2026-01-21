@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload
 from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.deps import get_current_user
-from app.models import Application, ApplicationStatus, User
+from app.models import Application, ApplicationStatus, Round, User
 from app.schemas.application import (
     ApplicationCreate,
     ApplicationListResponse,
@@ -118,7 +118,11 @@ async def get_application(
     result = await db.execute(
         select(Application)
         .where(Application.id == application_id, Application.user_id == user.id)
-        .options(selectinload(Application.status))
+        .options(
+            selectinload(Application.status),
+            selectinload(Application.rounds).selectinload(Round.round_type),
+            selectinload(Application.rounds).selectinload(Round.media),
+        )
     )
     application = result.scalars().first()
 
