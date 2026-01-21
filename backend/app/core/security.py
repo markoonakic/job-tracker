@@ -36,3 +36,27 @@ def decode_token(token: str) -> dict | None:
         return payload
     except JWTError:
         return None
+
+
+def create_file_token(application_id: str, doc_type: str, user_id: str) -> str:
+    """Create a short-lived token for file access."""
+    to_encode = {
+        "application_id": application_id,
+        "doc_type": doc_type,
+        "user_id": user_id,
+        "type": "file",
+    }
+    expire = datetime.utcnow() + timedelta(minutes=5)
+    to_encode["exp"] = expire
+    return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+
+
+def decode_file_token(token: str) -> dict | None:
+    """Decode and validate a file access token."""
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        if payload.get("type") != "file":
+            return None
+        return payload
+    except JWTError:
+        return None
