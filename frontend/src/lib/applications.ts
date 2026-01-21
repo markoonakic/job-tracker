@@ -79,3 +79,16 @@ export async function deleteTranscript(applicationId: string): Promise<Applicati
 export function getFileUrl(applicationId: string, docType: 'cv' | 'cover-letter' | 'transcript'): string {
   return `/api/files/${applicationId}/${docType}`;
 }
+
+export interface SignedUrlResponse {
+  url: string;
+  expires_in: number;
+}
+
+export async function getSignedUrl(
+  applicationId: string,
+  docType: 'cv' | 'cover-letter' | 'transcript'
+): Promise<SignedUrlResponse> {
+  const response = await api.get(`/api/files/${applicationId}/${docType}/signed`);
+  return response.data;
+}

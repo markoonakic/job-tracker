@@ -6,11 +6,10 @@ import {
   deleteCV,
   deleteCoverLetter,
   deleteTranscript,
-  getFileUrl,
+  getSignedUrl,
   updateApplication,
 } from '../lib/applications';
 import type { Application } from '../lib/types';
-import api from '../lib/api';
 
 interface Props {
   application: Application;
@@ -64,17 +63,27 @@ export default function DocumentSection({ application, onUpdate }: Props) {
     }
   }
 
-  function handlePreview(type: 'cv' | 'cover-letter' | 'transcript') {
-    const url = `${api.defaults.baseURL}${getFileUrl(application.id, type)}`;
-    window.open(url, '_blank');
+  async function handlePreview(type: 'cv' | 'cover-letter' | 'transcript') {
+    try {
+      const { url } = await getSignedUrl(application.id, type);
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      window.open(`${baseUrl}${url}`, '_blank');
+    } catch {
+      setError(`Failed to get preview URL for ${type}`);
+    }
   }
 
-  function handleDownload(type: 'cv' | 'cover-letter' | 'transcript') {
-    const url = `${api.defaults.baseURL}${getFileUrl(application.id, type)}`;
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = '';
-    link.click();
+  async function handleDownload(type: 'cv' | 'cover-letter' | 'transcript') {
+    try {
+      const { url } = await getSignedUrl(application.id, type);
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const link = document.createElement('a');
+      link.href = `${baseUrl}${url}`;
+      link.download = '';
+      link.click();
+    } catch {
+      setError(`Failed to get download URL for ${type}`);
+    }
   }
 
   async function handleSaveSummary() {
