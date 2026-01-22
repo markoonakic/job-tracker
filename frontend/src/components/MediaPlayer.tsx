@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { RoundMedia } from '../lib/types';
+import { getMediaSignedUrl } from '../lib/rounds';
 
 interface Props {
   media: RoundMedia;
@@ -10,10 +11,25 @@ export default function MediaPlayer({ media, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
 
-  const isVideo = media.media_type.startsWith('video/');
+  const isVideo = media.media_type === 'video';
   const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-  const mediaUrl = `${apiBase}/uploads/${media.file_path}`;
+
+  useEffect(() => {
+    async function fetchSignedUrl() {
+      try {
+        const { url } = await getMediaSignedUrl(media.id, 'inline');
+        setMediaUrl(`${apiBase}${url}`);
+      } catch {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSignedUrl();
+  }, [media.id, apiBase]);
 
   function handleError() {
     setError(true);
@@ -37,7 +53,9 @@ export default function MediaPlayer({ media, onClose }: Props) {
         </div>
 
         <div className="p-4">
-          {error ? (
+          {loading ? (
+            <div className="text-center py-12 text-muted">Loading...</div>
+          ) : error || !mediaUrl ? (
             <div className="text-center py-12 text-accent-red">
               Failed to load media file
             </div>

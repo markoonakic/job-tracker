@@ -27,3 +27,18 @@ export async function uploadMedia(roundId: string, file: File): Promise<Round> {
 export async function deleteMedia(mediaId: string): Promise<void> {
   await api.delete(`/api/media/${mediaId}`);
 }
+
+export interface SignedUrlResponse {
+  url: string;
+  expires_in: number;
+}
+
+export async function getMediaSignedUrl(
+  mediaId: string,
+  disposition: 'inline' | 'attachment' = 'inline'
+): Promise<SignedUrlResponse> {
+  const response = await api.get(`/api/files/media/${mediaId}/signed`, {
+    params: { disposition }
+  });
+  return response.data;
+}
