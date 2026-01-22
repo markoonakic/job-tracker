@@ -87,8 +87,11 @@ export interface SignedUrlResponse {
 
 export async function getSignedUrl(
   applicationId: string,
-  docType: 'cv' | 'cover-letter' | 'transcript'
+  docType: 'cv' | 'cover-letter' | 'transcript',
+  disposition: 'inline' | 'attachment' = 'inline'
 ): Promise<SignedUrlResponse> {
-  const response = await api.get(`/api/files/${applicationId}/${docType}/signed`);
+  const response = await api.get(`/api/files/${applicationId}/${docType}/signed`, {
+    params: { disposition }
+  });
   return response.data;
 }

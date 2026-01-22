@@ -65,7 +65,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
 
   async function handlePreview(type: 'cv' | 'cover-letter' | 'transcript') {
     try {
-      const { url } = await getSignedUrl(application.id, type);
+      const { url } = await getSignedUrl(application.id, type, 'inline');
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       window.open(`${baseUrl}${url}`, '_blank');
     } catch {
@@ -75,12 +75,9 @@ export default function DocumentSection({ application, onUpdate }: Props) {
 
   async function handleDownload(type: 'cv' | 'cover-letter' | 'transcript') {
     try {
-      const { url } = await getSignedUrl(application.id, type);
+      const { url } = await getSignedUrl(application.id, type, 'attachment');
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-      const link = document.createElement('a');
-      link.href = `${baseUrl}${url}`;
-      link.download = '';
-      link.click();
+      window.open(`${baseUrl}${url}`, '_blank');
     } catch {
       setError(`Failed to get download URL for ${type}`);
     }
@@ -100,6 +97,12 @@ export default function DocumentSection({ application, onUpdate }: Props) {
     }
   }
 
+  function isPreviewable(path: string | null): boolean {
+    if (!path) return false;
+    const ext = path.split('.').pop()?.toLowerCase();
+    return ext === 'pdf';
+  }
+
   function renderDocRow(
     label: string,
     type: 'cv' | 'cover-letter' | 'transcript',
@@ -107,6 +110,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
   ) {
     const hasFile = Boolean(path);
     const isUploading = uploading === type;
+    const canPreview = isPreviewable(path);
 
     return (
       <div className="flex items-center justify-between py-3 border-b border-tertiary last:border-0">
@@ -116,7 +120,13 @@ export default function DocumentSection({ application, onUpdate }: Props) {
             <span className="text-accent-green text-sm">Uploaded</span>
             <button
               onClick={() => handlePreview(type)}
-              className="px-2 py-1 bg-tertiary text-primary rounded text-xs hover:bg-muted"
+              disabled={!canPreview}
+              className={`px-2 py-1 rounded text-xs ${
+                canPreview
+                  ? 'bg-tertiary text-primary hover:bg-muted'
+                  : 'bg-tertiary/50 text-muted cursor-not-allowed'
+              }`}
+              title={canPreview ? 'Preview' : 'Preview not available for this file type'}
             >
               Preview
             </button>
