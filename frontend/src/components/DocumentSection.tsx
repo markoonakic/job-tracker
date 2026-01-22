@@ -18,6 +18,7 @@ interface Props {
 
 export default function DocumentSection({ application, onUpdate }: Props) {
   const [uploading, setUploading] = useState<string | null>(null);
+  const [justReplaced, setJustReplaced] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [transcriptSummary, setTranscriptSummary] = useState(application.transcript_summary || '');
   const [editingSummary, setEditingSummary] = useState(false);
@@ -25,7 +26,8 @@ export default function DocumentSection({ application, onUpdate }: Props) {
 
   async function handleUpload(
     type: 'cv' | 'cover-letter' | 'transcript',
-    file: File
+    file: File,
+    isReplace = false
   ) {
     setUploading(type);
     setError('');
@@ -39,6 +41,10 @@ export default function DocumentSection({ application, onUpdate }: Props) {
         updated = await uploadTranscript(application.id, file);
       }
       onUpdate(updated);
+      if (isReplace) {
+        setJustReplaced(type);
+        setTimeout(() => setJustReplaced(null), 2000);
+      }
     } catch {
       setError(`Failed to upload ${type}`);
     } finally {
@@ -78,12 +84,17 @@ export default function DocumentSection({ application, onUpdate }: Props) {
     try {
       const { url } = await getSignedUrl(application.id, type, 'attachment');
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${baseUrl}${url}`);
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch?.[1] || `${type}.pdf`;
+      const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = `${baseUrl}${url}`;
-      link.download = '';
-      document.body.appendChild(link);
+      link.href = blobUrl;
+      link.download = filename;
       link.click();
-      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
     } catch {
       setError(`Failed to download ${type}`);
     }
@@ -123,13 +134,16 @@ export default function DocumentSection({ application, onUpdate }: Props) {
     const hasFile = Boolean(path);
     const isUploading = uploading === type;
     const canPreview = isPreviewable(path);
+    const wasJustReplaced = justReplaced === type;
 
     return (
       <div className="flex items-center justify-between py-3 border-b border-tertiary last:border-0">
         <span className="text-primary font-medium w-28">{label}</span>
         {hasFile ? (
           <div className="flex items-center gap-2">
-            <span className="text-accent-green text-sm">Uploaded</span>
+            <span className={`text-sm ${wasJustReplaced ? 'text-accent-aqua' : 'text-accent-green'}`}>
+              {wasJustReplaced ? 'Replaced!' : 'Uploaded'}
+            </span>
             <button
               onClick={() => handlePreview(type)}
               disabled={!canPreview}
@@ -155,7 +169,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
                 accept=".pdf,.doc,.docx"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) handleUpload(type, file);
+                  if (file) handleUpload(type, file, true);
                 }}
                 className="hidden"
               />
@@ -240,7 +254,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
               </div>
             </>
           ) : application.transcript_summary ? (
-            <p className="text-primary text-sm whitespace-pre-wrap">{application.transcript_summary}</p>
+            <p className="text-primary text-sm whitespace-pre-wrap break-words">{application.transcript_summary}</p>
           ) : (
             <p className="text-muted text-sm italic">No summary added</p>
           )}
