@@ -1,3 +1,4 @@
+import mimetypes
 import os
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -23,6 +24,7 @@ class SignedUrlResponse(BaseModel):
 async def get_signed_url(
     application_id: str,
     doc_type: str,
+    disposition: str = Query("inline", pattern="^(inline|attachment)$"),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -49,7 +51,7 @@ async def get_signed_url(
         raise HTTPException(status_code=404, detail="File not found")
 
     token = create_file_token(application_id, doc_type, str(user.id))
-    url = f"/api/files/{application_id}/{doc_type}?token={token}"
+    url = f"/api/files/{application_id}/{doc_type}?token={token}&disposition={disposition}"
 
     return SignedUrlResponse(url=url, expires_in=300)
 
@@ -59,6 +61,7 @@ async def get_file(
     application_id: str,
     doc_type: str,
     token: str | None = Query(None),
+    disposition: str = Query("inline", pattern="^(inline|attachment)$"),
     user: User | None = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ):
@@ -101,8 +104,21 @@ async def get_file(
     if not file_path or not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
+    # Determine media type
+    media_type, _ = mimetypes.guess_type(file_path)
+    if not media_type:
+        media_type = "application/octet-stream"
+
+    filename = os.path.basename(file_path)
+
+    # Set content disposition
+    if disposition == "attachment":
+        headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+    else:
+        headers = {"Content-Disposition": f'inline; filename="{filename}"'}
+
     return FileResponse(
         file_path,
-        filename=os.path.basename(file_path),
-        media_type="application/octet-stream",
+        media_type=media_type,
+        headers=headers,
     )
