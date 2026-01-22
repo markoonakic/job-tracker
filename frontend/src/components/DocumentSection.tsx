@@ -77,9 +77,14 @@ export default function DocumentSection({ application, onUpdate }: Props) {
     try {
       const { url } = await getSignedUrl(application.id, type, 'attachment');
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-      window.open(`${baseUrl}${url}`, '_blank');
+      const link = document.createElement('a');
+      link.href = `${baseUrl}${url}`;
+      link.download = '';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch {
-      setError(`Failed to get download URL for ${type}`);
+      setError(`Failed to download ${type}`);
     }
   }
 
