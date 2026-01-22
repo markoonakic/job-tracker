@@ -44,7 +44,8 @@ export default function ApplicationDetail() {
   }
 
   function handleDocumentUpdate(updated: Application) {
-    setApplication(updated);
+    // Preserve existing rounds since document endpoints don't return them
+    setApplication(prev => prev ? { ...updated, rounds: prev.rounds } : updated);
   }
 
   async function handleDeleteRound(roundId: string) {
