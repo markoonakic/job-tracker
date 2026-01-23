@@ -7,14 +7,32 @@
  *
  * @param url - The blob URL or HTTP URL to download
  * @param filename - Suggested filename for the download
+ * @param blob - The original blob (needed to convert MIME type for Firefox)
  */
-export async function downloadFile(url: string, filename: string): Promise<void> {
+export async function downloadFile(url: string, filename: string, blob: Blob): Promise<void> {
   const isFirefoxBased = /Firefox|Seamonkey|Zen/i.test(navigator.userAgent);
   const isPDF = filename.toLowerCase().endsWith('.pdf');
   const needsIframeWorkaround = isFirefoxBased && isPDF;
 
+  console.log('=== downloadFile DEBUG ===');
+  console.log('User Agent:', navigator.userAgent);
+  console.log('Filename:', filename);
+  console.log('Original blob type:', blob.type);
+  console.log('isFirefoxBased:', isFirefoxBased);
+  console.log('isPDF:', isPDF);
+  console.log('needsIframeWorkaround:', needsIframeWorkaround);
+  console.log('Method:', needsIframeWorkaround ? 'iframe' : 'anchor');
+
   if (needsIframeWorkaround) {
-    downloadViaIframe(url);
+    // Convert PDF blob to octet-stream to prevent Firefox PDF.js from rendering it
+    const octetBlob = new Blob([blob], { type: 'application/octet-stream' });
+    const octetUrl = URL.createObjectURL(octetBlob);
+    console.log('Converted to octet-stream, new blob type:', octetBlob.type);
+
+    // Revoke original URL since we created a new one
+    URL.revokeObjectURL(url);
+
+    downloadViaIframe(octetUrl);
   } else {
     downloadViaAnchor(url, filename);
   }

@@ -85,7 +85,7 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
 
-      await downloadFile(blobUrl, filename);
+      await downloadFile(blobUrl, filename, blob);
     } catch {
       alert('Failed to download media');
     }

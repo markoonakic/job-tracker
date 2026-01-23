@@ -102,7 +102,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
 
-      await downloadFile(blobUrl, filename);
+      await downloadFile(blobUrl, filename, blob);
     } catch {
       setError(`Failed to download ${type}`);
     }

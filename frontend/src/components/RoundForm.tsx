@@ -6,7 +6,7 @@ import type { Round, RoundType, RoundCreate, RoundUpdate } from '../lib/types';
 interface Props {
   applicationId: string;
   round?: Round | null;
-  onSave: () => void;
+  onSave: (savedRound: Round) => void;
   onCancel: () => void;
 }
 
@@ -81,6 +81,7 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
     setError('');
 
     try {
+      let savedRound: Round;
       if (round) {
         const data: RoundUpdate = {
           round_type_id: roundTypeId,
@@ -89,16 +90,16 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
           outcome: outcome || undefined,
           notes_summary: notesSummary || undefined,
         };
-        await updateRound(round.id, data);
+        savedRound = await updateRound(round.id, data);
       } else {
         const data: RoundCreate = {
           round_type_id: roundTypeId,
           scheduled_at: formatDateTimeForApi(scheduledDate, scheduledTime),
           notes_summary: notesSummary || undefined,
         };
-        await createRound(applicationId, data);
+        savedRound = await createRound(applicationId, data);
       }
-      onSave();
+      onSave(savedRound);
     } catch {
       setError('Failed to save round. Please check your inputs.');
     } finally {
