@@ -67,15 +67,11 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
     try {
       const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       const { url } = await getMediaSignedUrl(media.id, 'attachment');
-      const response = await fetch(`${apiBase}${url}`);
-      const blob = await response.blob();
-      const filename = media.file_path.split('/').pop() || 'media';
-      const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
+      link.href = `${apiBase}${url}`;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
       link.click();
-      URL.revokeObjectURL(blobUrl);
     } catch {
       alert('Failed to download media');
     }
