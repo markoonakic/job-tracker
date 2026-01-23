@@ -26,6 +26,8 @@ export interface Round {
   completed_at: string | null;
   outcome: string | null;
   notes_summary: string | null;
+  transcript_path: string | null;
+  transcript_summary: string | null;
   media: RoundMedia[];
   created_at: string;
 }
@@ -39,8 +41,6 @@ export interface Application {
   status: Status;
   cv_path: string | null;
   cover_letter_path: string | null;
-  transcript_path: string | null;
-  transcript_summary: string | null;
   applied_at: string;
   created_at: string;
   updated_at: string;
@@ -70,7 +70,6 @@ export interface ApplicationUpdate {
   job_url?: string | null;
   status_id?: string;
   applied_at?: string;
-  transcript_summary?: string | null;
 }
 
 export interface RoundCreate {
