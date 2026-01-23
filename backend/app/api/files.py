@@ -105,6 +105,10 @@ async def get_media_file(
 
     if disposition == "attachment":
         headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+        # Force octet-stream for PDF attachments to prevent Firefox from opening in tab
+        # This works around Firefox Bug 453455 where user PDF preferences override Content-Disposition
+        if media_type == "application/pdf":
+            media_type = "application/octet-stream"
     else:
         headers = {"Content-Disposition": f'inline; filename="{filename}"'}
 
@@ -210,6 +214,10 @@ async def get_file(
     # Set content disposition
     if disposition == "attachment":
         headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+        # Force octet-stream for PDF attachments to prevent Firefox from opening in tab
+        # This works around Firefox Bug 453455 where user PDF preferences override Content-Disposition
+        if media_type == "application/pdf":
+            media_type = "application/octet-stream"
     else:
         headers = {"Content-Disposition": f'inline; filename="{filename}"'}
 
