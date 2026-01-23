@@ -84,19 +84,11 @@ export default function DocumentSection({ application, onUpdate }: Props) {
     try {
       const { url } = await getSignedUrl(application.id, type, 'attachment');
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-      const response = await fetch(`${baseUrl}${url}`);
-      const blob = await response.blob();
-      const contentDisposition = response.headers.get('Content-Disposition');
-      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-      const filename = filenameMatch?.[1] || `${type}.pdf`;
-      // Force octet-stream to prevent browser PDF auto-preview
-      const downloadBlob = new Blob([blob], { type: 'application/octet-stream' });
-      const blobUrl = URL.createObjectURL(downloadBlob);
       const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
+      link.href = `${baseUrl}${url}`;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
       link.click();
-      URL.revokeObjectURL(blobUrl);
     } catch {
       setError(`Failed to download ${type}`);
     }
