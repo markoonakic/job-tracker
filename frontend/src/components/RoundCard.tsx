@@ -68,8 +68,9 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
     try {
       const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       const { url } = await getMediaSignedUrl(media.id, 'attachment');
+      const fullUrl = `${apiBase}${url}`;
 
-      const response = await fetch(`${apiBase}${url}`);
+      const response = await fetch(fullUrl);
       if (!response.ok) throw new Error('Download failed');
 
       // Extract filename from Content-Disposition header
@@ -85,7 +86,9 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
 
-      await downloadFile(blobUrl, filename, blob);
+      // For Firefox PDFs, use original URL (has Content-Disposition header)
+      // For others, use blob URL
+      await downloadFile(fullUrl, blobUrl, filename, blob);
     } catch {
       alert('Failed to download media');
     }

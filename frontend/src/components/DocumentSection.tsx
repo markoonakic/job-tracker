@@ -85,8 +85,9 @@ export default function DocumentSection({ application, onUpdate }: Props) {
     try {
       const { url } = await getSignedUrl(application.id, type, 'attachment');
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const fullUrl = `${baseUrl}${url}`;
 
-      const response = await fetch(`${baseUrl}${url}`);
+      const response = await fetch(fullUrl);
       if (!response.ok) throw new Error('Download failed');
 
       // Extract filename from Content-Disposition header
@@ -102,7 +103,9 @@ export default function DocumentSection({ application, onUpdate }: Props) {
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
 
-      await downloadFile(blobUrl, filename, blob);
+      // For Firefox PDFs, use original URL (has Content-Disposition header)
+      // For others, use blob URL
+      await downloadFile(fullUrl, blobUrl, filename, blob);
     } catch {
       setError(`Failed to download ${type}`);
     }
