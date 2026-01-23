@@ -19,8 +19,6 @@ class Application(Base):
     status_id: Mapped[str] = mapped_column(String(36), ForeignKey("application_statuses.id"), nullable=False)
     cv_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     cover_letter_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    transcript_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    transcript_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     applied_at: Mapped[date] = mapped_column(Date, default=date.today)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -23,6 +23,8 @@ class Round(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     outcome: Mapped[str | None] = mapped_column(String(100), nullable=True)
     notes_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    transcript_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    transcript_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     application = relationship("Application", back_populates="rounds")
