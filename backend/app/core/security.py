@@ -83,3 +83,26 @@ def decode_media_token(token: str) -> dict | None:
         return payload
     except JWTError:
         return None
+
+
+def create_round_transcript_token(round_id: str, user_id: str) -> str:
+    """Create a short-lived token for round transcript access."""
+    to_encode = {
+        "round_id": round_id,
+        "user_id": user_id,
+        "type": "round_transcript",
+    }
+    expire = datetime.utcnow() + timedelta(minutes=5)
+    to_encode["exp"] = expire
+    return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+
+
+def decode_round_transcript_token(token: str) -> dict | None:
+    """Decode and validate a round transcript access token."""
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        if payload.get("type") != "round_transcript":
+            return None
+        return payload
+    except JWTError:
+        return None
