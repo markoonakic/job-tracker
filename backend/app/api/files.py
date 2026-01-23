@@ -12,8 +12,10 @@ from app.core.deps import get_current_user, get_current_user_optional
 from app.core.security import (
     create_file_token,
     create_media_token,
+    create_round_transcript_token,
     decode_file_token,
     decode_media_token,
+    decode_round_transcript_token,
 )
 from app.models import Application, Round, RoundMedia, User
 
@@ -114,6 +116,92 @@ async def get_media_file(
 
     return FileResponse(
         media.file_path,
+        media_type=media_type,
+        headers=headers,
+    )
+
+
+# Round transcript endpoints
+@router.get("/rounds/{round_id}/transcript/signed", response_model=SignedUrlResponse)
+async def get_round_transcript_signed_url(
+    round_id: str,
+    disposition: str = Query("inline", pattern="^(inline|attachment)$"),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate a signed URL for round transcript access."""
+    result = await db.execute(
+        select(Round)
+        .join(Application)
+        .where(Round.id == round_id, Application.user_id == user.id)
+    )
+    round_obj = result.scalars().first()
+
+    if not round_obj or not round_obj.transcript_path:
+        raise HTTPException(status_code=404, detail="Transcript not found")
+
+    token = create_round_transcript_token(round_id, str(user.id))
+    url = f"/api/files/rounds/{round_id}/transcript?token={token}&disposition={disposition}"
+
+    return SignedUrlResponse(url=url, expires_in=300)
+
+
+@router.get("/rounds/{round_id}/transcript")
+async def get_round_transcript_file(
+    round_id: str,
+    token: str | None = Query(None),
+    disposition: str = Query("inline", pattern="^(inline|attachment)$"),
+    user: User | None = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db),
+):
+    """Serve a round transcript file. Accepts either auth header or signed token."""
+    user_id = None
+
+    # Try token-based auth first
+    if token:
+        payload = decode_round_transcript_token(token)
+        if payload:
+            if payload.get("round_id") != round_id:
+                raise HTTPException(status_code=403, detail="Token mismatch")
+            user_id = payload.get("user_id")
+
+    # Fall back to header-based auth
+    if not user_id and user:
+        user_id = str(user.id)
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    result = await db.execute(
+        select(Round)
+        .join(Application)
+        .where(Round.id == round_id, Application.user_id == user_id)
+    )
+    round_obj = result.scalars().first()
+
+    if not round_obj or not round_obj.transcript_path:
+        raise HTTPException(status_code=404, detail="Transcript not found")
+
+    file_path = round_obj.transcript_path
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Determine media type
+    media_type, _ = mimetypes.guess_type(file_path)
+    if not media_type:
+        media_type = "application/octet-stream"
+
+    filename = os.path.basename(file_path)
+
+    if disposition == "attachment":
+        headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+        if media_type == "application/pdf":
+            media_type = "application/octet-stream"
+    else:
+        headers = {"Content-Disposition": f'inline; filename="{filename}"'}
+
+    return FileResponse(
+        file_path,
         media_type=media_type,
         headers=headers,
     )
