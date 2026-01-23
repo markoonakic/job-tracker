@@ -119,6 +119,34 @@ input[type="datetime-local"] {
   color-scheme: light;
 }
 
+/* Systematic text wrapping - prevents overflow everywhere */
+body {
+  overflow-wrap: break-word;
+  hyphens: auto;
+  word-break: normal;
+}
+
+/* Table-specific rules (critical for applications list) */
+table {
+  table-layout: fixed;
+}
+
+td, th {
+  overflow-wrap: break-word;
+  max-width: 0;
+}
+
+/* Progressive enhancement for modern browsers */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+@supports (text-wrap: pretty) {
+  p, li {
+    text-wrap: pretty;
+  }
+}
+
 table {
   table-layout: fixed;
 }
