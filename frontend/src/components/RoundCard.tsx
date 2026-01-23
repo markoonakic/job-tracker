@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { uploadMedia, deleteMedia, getMediaSignedUrl } from '../lib/rounds';
+import { uploadMedia, deleteMedia, getMediaSignedUrl, getRoundTranscriptSignedUrl, deleteRoundTranscript } from '../lib/rounds';
 import type { Round, RoundMedia } from '../lib/types';
 import MediaPlayer from './MediaPlayer';
 import { downloadFile } from '../lib/downloadFile';
@@ -86,11 +86,57 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
 
-      // For Firefox PDFs, use original URL (has Content-Disposition header)
-      // For others, use blob URL
-      await downloadFile(fullUrl, blobUrl, filename, blob);
+      downloadFile(blobUrl, filename);
     } catch {
       alert('Failed to download media');
+    }
+  }
+
+  async function handleTranscriptDownload() {
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const { url } = await getRoundTranscriptSignedUrl(round.id, 'attachment');
+      const fullUrl = `${apiBase}${url}`;
+
+      const response = await fetch(fullUrl);
+      if (!response.ok) throw new Error('Download failed');
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'transcript.pdf';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      downloadFile(blobUrl, filename);
+    } catch {
+      alert('Failed to download transcript');
+    }
+  }
+
+  async function handleTranscriptPreview() {
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const { url } = await getRoundTranscriptSignedUrl(round.id, 'inline');
+      const fullUrl = `${apiBase}${url}`;
+      window.open(fullUrl, '_blank');
+    } catch {
+      alert('Failed to preview transcript');
+    }
+  }
+
+  async function handleTranscriptDelete() {
+    if (!confirm('Delete this transcript?')) return;
+    try {
+      await deleteRoundTranscript(round.id);
+      onMediaChange();
+    } catch {
+      alert('Failed to delete transcript');
     }
   }
 
@@ -207,6 +253,60 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
           <p className="text-sm text-muted">No media files</p>
         )}
       </div>
+
+      {round.transcript_path && (
+        <div className="border-t border-secondary pt-3 mt-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-muted">Transcript</span>
+          </div>
+          <div className="flex items-center justify-between bg-secondary rounded px-3 py-2">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-accent-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              <span className="text-sm text-primary truncate max-w-[200px]">
+                {round.transcript_path.split('/').pop()}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleTranscriptPreview}
+                className="text-muted hover:text-accent-purple"
+                title="Preview"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+              <button
+                onClick={handleTranscriptDownload}
+                className="text-muted hover:text-accent-aqua"
+                title="Download"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </button>
+              <button
+                onClick={handleTranscriptDelete}
+                className="text-muted hover:text-accent-red"
+                title="Delete"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          {round.transcript_summary && (
+            <div className="mt-2 bg-secondary rounded px-3 py-2">
+              <p className="text-sm text-muted mb-1">Summary:</p>
+              <p className="text-sm text-secondary whitespace-pre-wrap">{round.transcript_summary}</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
