@@ -56,7 +56,6 @@ export default function Settings() {
   const [error, setError] = useState('');
   const [exporting, setExporting] = useState(false);
   const [activeSection, setActiveSection] = useState('theme');
-  const [mobileCategory, setMobileCategory] = useState('theme');
 
   useEffect(() => {
     loadData();
@@ -217,8 +216,8 @@ export default function Settings() {
         <div className="md:hidden w-full p-4 border-b border-tertiary bg-secondary">
           <h1 className="text-2xl font-bold text-primary mb-4">Settings</h1>
           <select
-            value={mobileCategory}
-            onChange={(e) => setMobileCategory(e.target.value)}
+            value={activeSection}
+            onChange={(e) => setActiveSection(e.target.value)}
             className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary focus:outline-none focus:border-accent-aqua"
           >
             <option value="theme">Theme</option>
@@ -229,15 +228,16 @@ export default function Settings() {
         </div>
 
         {/* Content area */}
-        <main className="flex-1 max-w-4xl p-8">
-          {error && (
-            <div className="bg-accent-red/20 border border-accent-red text-accent-red px-4 py-3 rounded mb-6">
-              {error}
-            </div>
-          )}
+        <main className="flex-1">
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            {error && (
+              <div className="bg-accent-red/20 border border-accent-red text-accent-red px-4 py-3 rounded mb-6">
+                {error}
+              </div>
+            )}
 
-          <div className="space-y-8">
-          {(activeSection === 'theme' || mobileCategory === 'theme') && (
+            <div className="space-y-8">
+          {activeSection === 'theme' && (
             <div className="bg-secondary rounded-lg p-6">
               <h2 className="text-lg font-semibold text-primary mb-4">Theme</h2>
               <ThemeDropdown
@@ -248,7 +248,7 @@ export default function Settings() {
             </div>
           )}
 
-          {(activeSection === 'statuses' || mobileCategory === 'statuses') && (
+          {activeSection === 'statuses' && (
             <div className="bg-secondary rounded-lg p-6">
               <h2 className="text-lg font-semibold text-primary mb-4">Application Statuses</h2>
 
@@ -356,7 +356,7 @@ export default function Settings() {
             </div>
           )}
 
-          {(activeSection === 'rounds' || mobileCategory === 'rounds') && (
+          {activeSection === 'rounds' && (
             <div className="bg-secondary rounded-lg p-6">
               <h2 className="text-lg font-semibold text-primary mb-4">Interview Round Types</h2>
 
@@ -398,7 +398,7 @@ export default function Settings() {
             </div>
           )}
 
-          {(activeSection === 'export' || mobileCategory === 'export') && (
+          {activeSection === 'export' && (
             <div className="bg-secondary rounded-lg p-6">
               <h2 className="text-lg font-semibold text-primary mb-4">Export Data</h2>
             <p className="text-sm text-muted mb-4">
@@ -422,6 +422,7 @@ export default function Settings() {
             </div>
             </div>
           )}
+          </div>
           </div>
         </main>
       </div>
