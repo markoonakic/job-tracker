@@ -31,6 +31,17 @@ export default function MediaPlayer({ media, onClose }: Props) {
     fetchSignedUrl();
   }, [media.id, apiBase]);
 
+  useEffect(() => {
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
   function handleError() {
     setError(true);
   }
