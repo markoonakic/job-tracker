@@ -210,24 +210,28 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <span className={`text-sm font-medium ${getOutcomeStyle(round.outcome)}`}>
             {getOutcomeLabel(round.outcome)}
           </span>
-          <button
-            onClick={onEdit}
-            className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200"
-            title="Edit"
-          >
-            <i className="bi bi-pencil text-base" />
-          </button>
-          <button
-            onClick={onDelete}
-            className="px-4 py-2 bg-tertiary text-accent-red rounded hover:bg-red-900/20 disabled:opacity-50 transition-all duration-200"
-            title="Delete"
-          >
-            <i className="bi bi-trash text-base" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onEdit}
+              className="p-2 text-[#ebdbb2] hover:text-[#8ec07c] transition-colors duration-200"
+              aria-label="Edit round"
+              title="Edit"
+            >
+              <i className="bi-pencil text-base" />
+            </button>
+            <button
+              onClick={onDelete}
+              className="p-2 text-[#fb4934] hover:text-[#8ec07c] transition-colors duration-200"
+              aria-label="Delete round"
+              title="Delete"
+            >
+              <i className="bi-trash text-base" />
+            </button>
+          </div>
         </div>
       </div>
 
