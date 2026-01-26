@@ -7,6 +7,7 @@ import RoundForm from '../components/RoundForm';
 import RoundCard from '../components/RoundCard';
 import DocumentSection from '../components/DocumentSection';
 import Layout from '../components/Layout';
+import EmptyState from '../components/EmptyState';
 
 export default function ApplicationDetail() {
   const { id } = useParams<{ id: string }>();
@@ -260,7 +261,14 @@ export default function ApplicationDetail() {
               ))}
             </div>
           ) : (
-            <p className="text-muted text-center py-8">No interview rounds yet</p>
+            <EmptyState
+              message="No interview rounds yet."
+              icon="bi-calendar-x"
+              action={{
+                label: 'Add Round',
+                onClick: () => setShowRoundForm(true),
+              }}
+            />
           )}
         </div>
       </div>
