@@ -244,8 +244,9 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
       <div className="border-t border-secondary pt-3">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-muted">Media Files</span>
-          <label className={`text-sm text-accent-aqua hover:underline cursor-pointer ${uploading ? 'opacity-50' : ''}`}>
-            {uploading ? 'Uploading...' : '+ Add Media'}
+          <label className={`px-3 py-1.5 bg-[#689d6a] text-[#282828] rounded font-medium hover:bg-[#8ec07c] transition-all duration-200 cursor-pointer flex items-center gap-1.5 text-sm ${uploading ? 'opacity-50' : ''}`}>
+            <i className="bi-plus-circle"></i>
+            {uploading ? 'Uploading...' : 'Add Media'}
             <input
               type="file"
               accept="video/*,audio/*"
@@ -267,14 +268,13 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
             {round.media.map((m) => (
               <div
                 key={m.id}
-                onClick={() => setPlayingMedia(m)}
-                className="flex items-center justify-between bg-secondary rounded px-3 py-2 cursor-pointer hover:bg-primary/10"
+                className="flex items-center justify-between bg-secondary rounded px-3 py-2"
               >
                 <div className="flex items-center gap-2">
                   {m.media_type === 'video' ? (
-                    <i className="bi bi-camera-video text-base text-accent-purple" />
+                    <i className="bi-camera-video text-base text-accent-purple" />
                   ) : (
-                    <i className="bi bi-music-note-beamed text-base text-accent-orange" />
+                    <i className="bi-music-note-beamed text-base text-accent-orange" />
                   )}
                   <span className="text-sm text-primary truncate max-w-[200px]">
                     {m.file_path.split('/').pop()}
@@ -282,18 +282,28 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
                 </div>
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={() => setPlayingMedia(m)}
+                    className="px-3 py-1.5 bg-[#3c3836] text-[#ebdbb2] rounded hover:bg-[#504945] hover:text-[#fbf1c7] transition-all duration-200 flex items-center gap-1.5 text-sm"
+                    title="Play"
+                  >
+                    <i className="bi-play-fill" />
+                    Play
+                  </button>
+                  <button
                     onClick={(e) => handleMediaDownload(m, e)}
-                    className="text-muted hover:text-accent-aqua"
+                    className="px-3 py-1.5 bg-[#3c3836] text-[#ebdbb2] rounded hover:bg-[#504945] hover:text-[#fbf1c7] transition-all duration-200 flex items-center gap-1.5 text-sm"
                     title="Download"
                   >
-                    <i className="bi bi-download text-base" />
+                    <i className="bi-download" />
+                    Download
                   </button>
                   <button
                     onClick={(e) => handleMediaDelete(m.id, e)}
-                    className="px-4 py-2 bg-tertiary text-accent-red rounded hover:bg-red-900/20 disabled:opacity-50 transition-all duration-200"
+                    className="px-3 py-1.5 bg-[#3c3836] text-[#fb4934] rounded hover:bg-[#504945] transition-all duration-200 flex items-center gap-1.5 text-sm"
                     title="Delete"
                   >
-                    <i className="bi bi-x-lg text-base" />
+                    <i className="bi-trash" />
+                    Delete
                   </button>
                 </div>
               </div>
