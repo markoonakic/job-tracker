@@ -11,8 +11,8 @@ export default function ApplicationForm() {
   const isEditing = Boolean(id);
 
   const [statuses, setStatuses] = useState<Status[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const [company, setCompany] = useState('');
@@ -60,7 +60,7 @@ export default function ApplicationForm() {
       loadApplication();
     } else {
       setAppliedAt(new Date().toISOString().split('T')[0]);
-      setLoading(false);
+      setInitialLoading(false);
     }
   }, [id]);
 
@@ -89,7 +89,7 @@ export default function ApplicationForm() {
     } catch {
       setError('Failed to load application');
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
     }
   }
 
@@ -106,7 +106,7 @@ export default function ApplicationForm() {
       return;
     }
 
-    setSaving(true);
+    setLoading(true);
     setError('');
 
     try {
@@ -136,11 +136,11 @@ export default function ApplicationForm() {
     } catch {
       setError('Failed to save application');
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   }
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <Layout>
         <div className="flex items-center justify-center py-20">
@@ -269,10 +269,10 @@ export default function ApplicationForm() {
             </Link>
             <button
               type="submit"
-              disabled={saving}
+              disabled={loading}
               className="px-4 py-2 bg-accent-aqua text-bg-primary rounded font-medium hover:opacity-90 disabled:opacity-50 transition-all duration-200"
             >
-              {saving ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Application'}
+              {loading ? 'Saving...' : isEditing ? 'Save' : 'Add Application'}
             </button>
           </div>
         </form>

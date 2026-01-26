@@ -11,8 +11,9 @@ interface Props {
 }
 
 export default function RoundForm({ applicationId, round, onSave, onCancel }: Props) {
+  const isEditing = Boolean(round);
   const [roundTypes, setRoundTypes] = useState<RoundType[]>([]);
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   function parseDateTime(isoString: string | null): { date: string; time: string } {
@@ -79,7 +80,7 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
       return;
     }
 
-    setSaving(true);
+    setLoading(true);
     setError('');
 
     try {
@@ -113,7 +114,7 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
     } catch {
       setError('Failed to save round. Please check your inputs.');
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   }
 
@@ -252,10 +253,10 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
         </button>
         <button
           type="submit"
-          disabled={saving}
+          disabled={loading}
           className="px-4 py-2 bg-accent-aqua text-bg-primary rounded font-medium hover:opacity-90 disabled:opacity-50 transition-all duration-200"
         >
-          {saving ? 'Saving...' : round ? 'Save' : 'Add Round'}
+          {loading ? 'Saving...' : isEditing ? 'Save' : 'Add Round'}
         </button>
       </div>
     </form>
