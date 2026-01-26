@@ -6,6 +6,7 @@ import { listStatuses } from '../lib/settings';
 import type { Application, Status } from '../lib/types';
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
+import EmptyState from '../components/EmptyState';
 
 export default function Applications() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,6 +20,7 @@ export default function Applications() {
   const perPage = 10;
   const statusFilter = searchParams.get('status') || '';
   const search = searchParams.get('search') || '';
+  const isFiltered = search || statusFilter;
 
   useEffect(() => {
     loadStatuses();
@@ -125,9 +127,22 @@ export default function Applications() {
         {loading ? (
           <Loading message="Loading applications..." />
         ) : applications.length === 0 ? (
-          <div className="text-center py-12 text-muted">
-            No applications found. Create your first one!
-          </div>
+          isFiltered ? (
+            <EmptyState
+              message="No applications match your search or filters."
+              subMessage="Try different keywords or clear filters."
+              icon="bi-search"
+            />
+          ) : (
+            <EmptyState
+              message="No applications yet. Add your first application to get started."
+              icon="bi-inbox"
+              action={{
+                label: "Add Application",
+                onClick: () => window.location.href = '/applications/new'
+              }}
+            />
+          )
         ) : (
           <>
             <div className="bg-secondary rounded-lg overflow-hidden">
