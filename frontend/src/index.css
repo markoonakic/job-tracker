@@ -118,6 +118,9 @@
   --transition-fast: 0.2s ease;
   /* Applied to: hover states, color changes, background changes, border colors */
 
+  /* Touch targets (accessibility) */
+  --touch-target-min: 2.75rem; /* 44px minimum for mobile */
+
   --bg-primary: #282828;
   --bg-secondary: #3c3836;
   --bg-tertiary: #504945;
@@ -249,6 +252,12 @@ h2 {
 h3 {
   font-size: var(--font-h3);
   line-height: 1.4;
+}
+
+/* Minimum touch target utility */
+.touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
 }
 
 .bg-primary { background-color: var(--bg-primary); }
