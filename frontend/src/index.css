@@ -121,6 +121,10 @@
   /* Touch targets (accessibility) */
   --touch-target-min: 2.75rem; /* 44px minimum for mobile */
 
+  /* RGB values for opacity calculations */
+  --accent-red-rgb: 251, 73, 68; /* #fb4934 */
+  --accent-aqua-rgb: 142, 192, 124; /* #8ec07c */
+
   --bg-primary: #282828;
   --bg-secondary: #3c3836;
   --bg-tertiary: #504945;
