@@ -49,7 +49,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoFocus
-              className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200"
+              className="w-full px-3 py-2 bg-[#3c3836] border border-transparent rounded text-[#ebdbb2] placeholder-[#928374] focus:outline-none focus:border-[#8ec07c] transition-all duration-200"
               required
             />
           </div>
@@ -65,7 +65,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-4 py-2 bg-accent-aqua text-bg-primary rounded font-medium hover:opacity-90 disabled:opacity-50 transition-all duration-200"
+            className="w-full px-4 py-2 bg-[#689d6a] text-[#282828] rounded font-medium hover:bg-[#8ec07c] disabled:opacity-50 transition-all duration-200"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
@@ -73,7 +73,7 @@ export default function Login() {
 
           <p className="mt-4 text-center text-muted">
             Don't have an account?{' '}
-            <Link to="/register" className="text-accent-aqua hover:underline">Register</Link>
+            <Link to="/register" className="text-[#689d6a] hover:text-[#8ec07c] transition-colors duration-200">Register</Link>
           </p>
       </div>
     </div>
