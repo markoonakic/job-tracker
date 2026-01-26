@@ -4,6 +4,7 @@ import { exportJSON, exportCSV } from '../lib/export';
 import type { Status, RoundType } from '../lib/types';
 import Layout from '../components/Layout';
 import ThemeDropdown from '../components/ThemeDropdown';
+import Loading from '../components/Loading';
 
 const THEMES = [
   {
@@ -187,7 +188,7 @@ export default function Settings() {
             <h2 className="text-lg font-semibold text-primary mb-4">Application Statuses</h2>
 
             {loading ? (
-              <div className="text-muted">Loading...</div>
+              <Loading message="Loading settings..." />
             ) : (
               <>
                 <div className="space-y-2 mb-4">
@@ -293,7 +294,7 @@ export default function Settings() {
             <h2 className="text-lg font-semibold text-primary mb-4">Interview Round Types</h2>
 
             {loading ? (
-              <div className="text-muted">Loading...</div>
+              <Loading message="Loading settings..." />
             ) : (
               <>
                 <div className="space-y-2 mb-4">

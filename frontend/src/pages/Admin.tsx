@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { listUsers, updateUser, getAdminStats } from '../lib/admin';
 import type { User, AdminStats } from '../lib/admin';
 import Layout from '../components/Layout';
+import Loading from '../components/Loading';
 
 export default function Admin() {
   const { user } = useAuth();
@@ -89,7 +90,7 @@ export default function Admin() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-muted">Loading...</div>
+          <Loading message="Loading admin data..." />
         ) : activeTab === 'stats' ? (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -5,6 +5,7 @@ import type { ListParams } from '../lib/applications';
 import { listStatuses } from '../lib/settings';
 import type { Application, Status } from '../lib/types';
 import Layout from '../components/Layout';
+import Loading from '../components/Loading';
 
 export default function Applications() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -122,7 +123,7 @@ export default function Applications() {
         )}
 
         {loading ? (
-          <div className="text-center py-12 text-muted">Loading...</div>
+          <Loading message="Loading applications..." />
         ) : applications.length === 0 ? (
           <div className="text-center py-12 text-muted">
             No applications found. Create your first one!
