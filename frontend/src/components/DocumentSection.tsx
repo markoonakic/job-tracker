@@ -143,7 +143,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
           <div className="flex flex-col gap-2 items-end">
             {isProgressActive && <ProgressBar progress={uploadProgress} fileName={uploadingFile?.name} />}
             <div className="flex items-center gap-2">
-              <span className={`text-sm ${wasJustReplaced ? 'text-accent-aqua' : 'text-accent-green'}`}>
+              <span className={`text-sm ${wasJustReplaced ? 'text-[#8ec07c]' : 'text-[#b8bb26]'}`}>
                 {wasJustReplaced ? 'Replaced!' : 'Uploaded'}
               </span>
               <button
@@ -207,7 +207,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
       <h2 className="text-lg font-semibold text-primary mb-4">Documents</h2>
 
       {error && (
-        <div className="bg-accent-red/20 border border-accent-red text-accent-red px-3 py-2 rounded mb-4 text-sm">
+        <div className="bg-[#fb4934]/20 border border-[#fb4934] text-[#fb4934] px-3 py-2 rounded mb-4 text-sm">
           {error}
         </div>
       )}

@@ -144,7 +144,7 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
       </h3>
 
       {error && (
-        <div className="bg-accent-red/20 border border-accent-red text-accent-red px-3 py-2 rounded mb-4 text-sm">
+        <div className="bg-[#fb4934]/20 border border-[#fb4934] text-[#fb4934] px-3 py-2 rounded mb-4 text-sm">
           {error}
         </div>
       )}
@@ -183,7 +183,7 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
             value={scheduledTime}
             onChange={(e) => setScheduledTime(e.target.value)}
             placeholder="e.g. 2:30 PM"
-            className="w-full px-3 py-2 bg-secondary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200"
+            className="w-full px-3 py-2 bg-[#3c3836] border border-transparent rounded text-[#ebdbb2] placeholder-[#928374] focus:outline-none focus:border-[#8ec07c] transition-all duration-200"
           />
         </div>
 
@@ -220,7 +220,7 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
                 value={completedTime}
                 onChange={(e) => setCompletedTime(e.target.value)}
                 placeholder="e.g. 2:30 PM"
-                className="w-full px-3 py-2 bg-secondary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200"
+                className="w-full px-3 py-2 bg-[#3c3836] border border-transparent rounded text-[#ebdbb2] placeholder-[#928374] focus:outline-none focus:border-[#8ec07c] transition-all duration-200"
               />
             </div>
           </>
@@ -233,7 +233,7 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
             onChange={(e) => setNotesSummary(e.target.value)}
             rows={3}
             placeholder="Key points, questions asked, feedback..."
-            className="w-full px-3 py-2 bg-secondary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200 resize-y"
+            className="w-full px-3 py-2 bg-[#3c3836] border border-transparent rounded text-[#ebdbb2] placeholder-[#928374] focus:outline-none focus:border-[#8ec07c] transition-all duration-200 resize-y"
           />
         </div>
 
@@ -262,7 +262,7 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
             onChange={(e) => setTranscriptSummary(e.target.value)}
             rows={3}
             placeholder="Summary of key discussion points from transcript..."
-            className="w-full px-3 py-2 bg-secondary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200 resize-y"
+            className="w-full px-3 py-2 bg-[#3c3836] border border-transparent rounded text-[#ebdbb2] placeholder-[#928374] focus:outline-none focus:border-[#8ec07c] transition-all duration-200 resize-y"
           />
         </div>
       </div>
