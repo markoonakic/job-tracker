@@ -21,6 +21,12 @@ export default function Layout({ children }: Props) {
   return (
     <div className="min-h-screen bg-primary">
       <nav className="bg-secondary border-b border-tertiary">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent-aqua focus:text-bg-primary focus:rounded"
+        >
+          Skip to main content
+        </a>
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-6">
             <Link to="/" className="text-xl font-bold text-accent-aqua">
@@ -51,8 +57,10 @@ export default function Layout({ children }: Props) {
             </button>
           </div>
         </div>
-      </nav>
-      {children}
+       </nav>
+      <main id="main-content">
+        {children}
+      </main>
     </div>
   );
 }
