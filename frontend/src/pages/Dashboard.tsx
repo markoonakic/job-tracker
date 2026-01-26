@@ -1,15 +1,48 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { listApplications } from '../lib/applications';
 import Layout from '../components/Layout';
 import ActivityHeatmap from '../components/ActivityHeatmap';
+import EmptyState from '../components/EmptyState';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const [totalApplications, setTotalApplications] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadTotalApplications() {
+      try {
+        const data = await listApplications({ page: 1, per_page: 1 });
+        setTotalApplications(data.total);
+      } catch {
+        console.error('Failed to load total applications');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadTotalApplications();
+  }, []);
+
+  if (loading) return null;
 
   return (
     <Layout>
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-primary mb-6">Dashboard</h1>
+        {totalApplications === 0 ? (
+          <EmptyState
+            message="Welcome! Add your first job application to get started."
+            icon="bi-plus-circle"
+            action={{
+              label: "Add Application",
+              onClick: () => window.location.href = '/applications/new'
+            }}
+          />
+        ) : (
+          <>
+            <h1 className="text-2xl font-bold text-primary mb-6">Dashboard</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link
@@ -56,6 +89,8 @@ export default function Dashboard() {
           </div>
           <ActivityHeatmap />
         </div>
+          </>
+        )}
       </div>
     </Layout>
   );
