@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register, login } from '../lib/auth';
 import { useAuth } from '../contexts/AuthContext';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -43,7 +44,7 @@ export default function Register() {
         </h1>
 
         {error && (
-          <div className="mb-4 p-3 rounded bg-accent-red text-primary">
+          <div className="mb-4 p-3 rounded border border-accent-red text-accent-red" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)' }}>
             {error}
           </div>
         )}
@@ -55,32 +56,27 @@ export default function Register() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoFocus
               className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200"
               required
             />
           </div>
 
-          <div>
-            <label className="block mb-1 text-sm font-semibold text-muted">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200"
-              required
-            />
-          </div>
+          <PasswordInput
+            value={password}
+            onChange={setPassword}
+            label="Password"
+            required
+            autoComplete="new-password"
+          />
 
-          <div>
-            <label className="block mb-1 text-sm font-semibold text-muted">Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200"
-              required
-            />
-          </div>
+          <PasswordInput
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            label="Confirm Password"
+            required
+            autoComplete="new-password"
+          />
 
           <button
             type="submit"
@@ -91,10 +87,10 @@ export default function Register() {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-muted">
-          Already have an account?{' '}
-          <Link to="/login" className="text-accent-blue hover:underline">Sign in</Link>
-        </p>
+          <p className="mt-4 text-center text-muted">
+            Already have an account?{' '}
+            <Link to="/login" className="text-accent-aqua hover:underline">Sign in</Link>
+          </p>
       </div>
     </div>
   );
