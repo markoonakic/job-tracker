@@ -14,7 +14,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link
             to="/applications"
-            className="bg-secondary rounded-lg p-6 hover:bg-tertiary transition-colors"
+            className="bg-secondary rounded-lg p-6 border border-tertiary hover:bg-tertiary hover:-translate-y-0.5 transition-all duration-200"
           >
             <h2 className="text-lg font-semibold text-primary mb-2">Applications</h2>
             <p className="text-muted text-sm">View and manage your job applications</p>
@@ -22,7 +22,7 @@ export default function Dashboard() {
 
           <Link
             to="/analytics"
-            className="bg-secondary rounded-lg p-6 hover:bg-tertiary transition-colors"
+            className="bg-secondary rounded-lg p-6 border border-tertiary hover:bg-tertiary hover:-translate-y-0.5 transition-all duration-200"
           >
             <h2 className="text-lg font-semibold text-primary mb-2">Analytics</h2>
             <p className="text-muted text-sm">Visualize your job search progress</p>
@@ -30,7 +30,7 @@ export default function Dashboard() {
 
           <Link
             to="/settings"
-            className="bg-secondary rounded-lg p-6 hover:bg-tertiary transition-colors"
+            className="bg-secondary rounded-lg p-6 border border-tertiary hover:bg-tertiary hover:-translate-y-0.5 transition-all duration-200"
           >
             <h2 className="text-lg font-semibold text-primary mb-2">Settings</h2>
             <p className="text-muted text-sm">Customize themes, statuses, and more</p>
@@ -39,7 +39,7 @@ export default function Dashboard() {
           {user?.is_admin && (
             <Link
               to="/admin"
-              className="bg-secondary rounded-lg p-6 hover:bg-tertiary transition-colors"
+              className="bg-secondary rounded-lg p-6 border border-tertiary hover:bg-tertiary hover:-translate-y-0.5 transition-all duration-200"
             >
               <h2 className="text-lg font-semibold text-accent-purple mb-2">Admin Panel</h2>
               <p className="text-muted text-sm">Manage users and view system statistics</p>
