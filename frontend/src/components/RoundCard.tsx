@@ -318,8 +318,9 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-muted">Transcript</span>
           {!round.transcript_path && (
-            <label className={`text-sm text-accent-aqua hover:underline cursor-pointer ${uploadingTranscript ? 'opacity-50' : ''}`}>
-              {uploadingTranscript ? 'Uploading...' : '+ Add Transcript'}
+            <label className={`px-3 py-1.5 bg-[#689d6a] text-[#282828] rounded font-medium hover:bg-[#8ec07c] transition-all duration-200 cursor-pointer flex items-center gap-1.5 text-sm ${uploadingTranscript ? 'opacity-50' : ''}`}>
+              <i className="bi-plus-circle"></i>
+              {uploadingTranscript ? 'Uploading...' : 'Add Transcript'}
               <input
                 type="file"
                 accept=".pdf"
@@ -341,7 +342,7 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
           <>
             <div className="flex items-center justify-between bg-secondary rounded px-3 py-2">
               <div className="flex items-center gap-2">
-                <i className="bi bi-file-text text-base text-accent-red" />
+                <i className="bi-file-text text-base text-accent-red" />
                 <span className="text-sm text-primary truncate max-w-[200px]">
                   {round.transcript_path.split('/').pop()}
                 </span>
@@ -350,26 +351,20 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
                 <button
                   onClick={handleTranscriptPreview}
                   disabled={uploadingTranscript}
-                  className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200"
-                  title="Preview"
+                  className="px-3 py-1.5 bg-[#3c3836] text-[#ebdbb2] rounded hover:bg-[#504945] hover:text-[#fbf1c7] disabled:opacity-50 transition-all duration-200 flex items-center gap-1.5 text-sm"
+                  title="View"
                 >
-                  <i className="bi bi-eye text-base" />
-                </button>
-                <button
-                  onClick={handleTranscriptDownload}
-                  disabled={uploadingTranscript}
-                  className="text-muted hover:text-accent-aqua"
-                  title="Download"
-                >
-                  <i className="bi bi-download text-base" />
+                  <i className="bi-eye" />
+                  View
                 </button>
                 <button
                   onClick={handleTranscriptDelete}
                   disabled={uploadingTranscript}
-                  className="px-4 py-2 bg-tertiary text-accent-red rounded hover:bg-red-900/20 disabled:opacity-50 transition-all duration-200"
+                  className="px-3 py-1.5 bg-[#3c3836] text-[#fb4934] rounded hover:bg-[#504945] disabled:opacity-50 transition-all duration-200 flex items-center gap-1.5 text-sm"
                   title="Delete"
                 >
-                  <i className="bi bi-x-lg text-base" />
+                  <i className="bi-trash" />
+                  Delete
                 </button>
               </div>
             </div>
