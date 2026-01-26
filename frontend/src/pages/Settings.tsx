@@ -256,6 +256,11 @@ export default function Settings() {
               <Loading message="Loading settings..." />
             ) : (
               <>
+                {statuses.filter(s => !s.is_default).length === 0 && (
+                  <p className="text-sm text-muted mb-4 p-3 bg-tertiary rounded">
+                    Using default statuses. Add custom statuses to override.
+                  </p>
+                )}
                 <div className="space-y-2 mb-4">
                   {statuses.map((status) => (
                     <div
@@ -364,6 +369,11 @@ export default function Settings() {
               <Loading message="Loading settings..." />
             ) : (
               <>
+                {roundTypes.filter(t => !t.is_default).length === 0 && (
+                  <p className="text-sm text-muted mb-4 p-3 bg-tertiary rounded">
+                    Using default round types. Add custom round types to override.
+                  </p>
+                )}
                 <div className="space-y-2 mb-4">
                   {roundTypes.map((type) => (
                     <div
