@@ -162,7 +162,7 @@ export default function Applications() {
                       <td className="py-3 px-4 text-sm">
                         <Link
                           to={`/applications/${app.id}`}
-                          className="text-accent-aqua hover:underline font-medium"
+                          className="text-[#689d6a] hover:text-[#8ec07c] transition-colors duration-200 font-medium"
                         >
                           {app.company}
                         </Link>
