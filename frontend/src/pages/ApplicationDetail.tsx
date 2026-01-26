@@ -154,12 +154,16 @@ export default function ApplicationDetail() {
               <p className="text-xl text-secondary">{application.job_title}</p>
             </div>
             <span
-              className="px-3 py-1 rounded font-medium"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold"
               style={{
                 backgroundColor: `${application.status.color}20`,
                 color: application.status.color,
               }}
             >
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: application.status.color }}
+              />
               {application.status.name}
             </span>
           </div>
