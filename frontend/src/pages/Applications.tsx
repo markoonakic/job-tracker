@@ -181,17 +181,17 @@ export default function Applications() {
                 <button
                   onClick={() => updateParams({ page: String(page - 1) })}
                   disabled={page === 1}
-                  className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200"
+                  className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
                   Previous
                 </button>
-                <span className="text-secondary px-4">
+                <span className="text-sm text-muted font-mono px-4">
                   Page {page} of {totalPages}
                 </span>
                 <button
                   onClick={() => updateParams({ page: String(page + 1) })}
                   disabled={page === totalPages}
-                  className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200"
+                  className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
                   Next
                 </button>
