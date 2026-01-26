@@ -131,20 +131,20 @@ export default function Applications() {
         ) : (
           <>
             <div className="bg-secondary rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-tertiary">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-muted text-sm font-medium">Company</th>
-                    <th className="px-4 py-3 text-left text-muted text-sm font-medium">Position</th>
-                    <th className="px-4 py-3 text-left text-muted text-sm font-medium">Status</th>
-                    <th className="px-4 py-3 text-left text-muted text-sm font-medium">Applied</th>
-                    <th className="px-4 py-3 text-left text-muted text-sm font-medium">Rounds</th>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-tertiary">
+                    <th className="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Company</th>
+                    <th className="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Position</th>
+                    <th className="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
+                    <th className="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Applied</th>
+                    <th className="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Rounds</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-tertiary">
+                <tbody>
                   {applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-tertiary/50 transition-colors">
-                      <td className="px-4 py-3">
+                    <tr key={app.id} className="border-b border-tertiary hover:bg-tertiary transition-colors duration-200">
+                      <td className="py-3 px-4 text-sm">
                         <Link
                           to={`/applications/${app.id}`}
                           className="text-accent-aqua hover:underline font-medium"
@@ -152,8 +152,8 @@ export default function Applications() {
                           {app.company}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-primary">{app.job_title}</td>
-                      <td className="px-4 py-3">
+                      <td className="py-3 px-4 text-sm text-primary">{app.job_title}</td>
+                      <td className="py-3 px-4 text-sm">
                         <span
                           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold"
                           style={{
@@ -168,8 +168,8 @@ export default function Applications() {
                           {app.status.name}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-secondary">{formatDate(app.applied_at)}</td>
-                      <td className="px-4 py-3 text-secondary">{app.rounds?.length || 0}</td>
+                      <td className="py-3 px-4 text-sm text-secondary">{formatDate(app.applied_at)}</td>
+                      <td className="py-3 px-4 text-sm text-secondary">{app.rounds?.length || 0}</td>
                     </tr>
                   ))}
                 </tbody>
