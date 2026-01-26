@@ -39,12 +39,12 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md p-8 rounded-lg bg-secondary">
-        <h1 className="text-2xl font-bold mb-6 text-accent-aqua">
+        <h1 className="text-2xl font-bold mb-6 text-[#8ec07c]">
           Create Account
         </h1>
 
         {error && (
-          <div className="mb-4 p-3 rounded border border-accent-red text-accent-red" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)' }}>
+          <div className="mb-4 p-3 rounded border border-[#fb4934] text-[#fb4934] bg-[#fb4934]/20">
             {error}
           </div>
         )}

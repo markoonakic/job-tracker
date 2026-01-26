@@ -231,7 +231,7 @@ export default function Settings() {
         <main className="flex-1">
           <div className="max-w-6xl mx-auto px-4 py-8">
             {error && (
-              <div className="bg-accent-red/20 border border-accent-red text-accent-red px-4 py-3 rounded mb-6">
+              <div className="bg-[#fb4934]/20 border border-[#fb4934] text-[#fb4934] px-4 py-3 rounded mb-6">
                 {error}
               </div>
             )}
