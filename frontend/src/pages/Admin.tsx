@@ -61,7 +61,7 @@ export default function Admin() {
         <h1 className="text-2xl font-bold text-primary mb-6">Admin Panel</h1>
 
         {error && (
-          <div className="bg-accent-red/20 border border-accent-red text-accent-red px-4 py-3 rounded mb-6">
+          <div className="bg-[#fb4934]/20 border border-[#fb4934] text-[#fb4934] px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
@@ -71,8 +71,8 @@ export default function Admin() {
             onClick={() => setActiveTab('stats')}
             className={`px-4 py-2 rounded font-medium transition-all duration-200 ${
               activeTab === 'stats'
-                ? 'bg-accent-aqua text-bg-primary hover:opacity-90'
-                : 'bg-tertiary text-primary hover:bg-muted'
+                ? 'bg-[#689d6a] text-[#282828] hover:bg-[#8ec07c]'
+                : 'bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945]'
             }`}
           >
             Statistics
@@ -81,8 +81,8 @@ export default function Admin() {
             onClick={() => setActiveTab('users')}
             className={`px-4 py-2 rounded font-medium transition-all duration-200 ${
               activeTab === 'users'
-                ? 'bg-accent-aqua text-bg-primary hover:opacity-90'
-                : 'bg-tertiary text-primary hover:bg-muted'
+                ? 'bg-[#689d6a] text-[#282828] hover:bg-[#8ec07c]'
+                : 'bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945]'
             }`}
           >
             Users
@@ -111,7 +111,7 @@ export default function Admin() {
                   {stats.applications_by_status.map((item) => (
                     <div key={item.status} className="flex justify-between items-center">
                       <span className="text-primary">{item.status}</span>
-                      <span className="text-accent-aqua font-medium">{item.count}</span>
+                      <span className="text-[#8ec07c] font-medium">{item.count}</span>
                     </div>
                   ))}
                 </div>
@@ -142,8 +142,8 @@ export default function Admin() {
                         disabled={u.id === user?.id}
                         className={`px-2 py-1 rounded text-xs ${
                           u.is_admin
-                            ? 'bg-accent-purple/20 text-accent-purple'
-                            : 'bg-tertiary text-muted'
+                            ? 'bg-[#d3869b]/20 text-[#d3869b]'
+                            : 'bg-[#3c3836] text-[#928374]'
                         } disabled:opacity-50`}
                       >
                         {u.is_admin ? 'Yes' : 'No'}
@@ -155,8 +155,8 @@ export default function Admin() {
                         disabled={u.id === user?.id}
                         className={`px-2 py-1 rounded text-xs ${
                           u.is_active
-                            ? 'bg-accent-green/20 text-accent-green'
-                            : 'bg-accent-red/20 text-accent-red'
+                            ? 'bg-[#b8bb26]/20 text-[#b8bb26]'
+                            : 'bg-[#fb4934]/20 text-[#fb4934]'
                         } disabled:opacity-50`}
                       >
                         {u.is_active ? 'Yes' : 'No'}

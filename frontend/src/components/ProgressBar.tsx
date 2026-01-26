@@ -15,7 +15,7 @@ export default function ProgressBar({ progress, fileName, showPercentage = true 
       <div className="w-full h-2 bg-tertiary rounded-sm overflow-hidden">
         <div
           className={`h-full transition-all duration-300 ${
-            isComplete ? 'bg-accent-green' : 'bg-accent-aqua'
+            isComplete ? 'bg-[#b8bb26]' : 'bg-[#8ec07c]'
           }`}
           style={{ width: `${Math.min(progress, 100)}%` }}
           role="progressbar"

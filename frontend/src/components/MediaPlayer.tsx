@@ -93,7 +93,7 @@ export default function MediaPlayer({ media, onClose }: Props) {
           <button
             onClick={onClose}
             aria-label="Close"
-            className="text-muted hover:text-primary p-1 transition-colors duration-200"
+            className="text-[#928374] hover:text-[#ebdbb2] p-1 transition-colors duration-200"
           >
             <i className="bi bi-x-lg text-xl" />
           </button>
@@ -103,7 +103,7 @@ export default function MediaPlayer({ media, onClose }: Props) {
           {loading ? (
             <div className="text-center py-12 text-muted">Loading...</div>
           ) : error || !mediaUrl ? (
-            <div className="text-center py-12 text-accent-red">
+            <div className="text-center py-12 text-[#fb4934]">
               Failed to load media file
             </div>
           ) : isVideo ? (
@@ -121,7 +121,7 @@ export default function MediaPlayer({ media, onClose }: Props) {
             <div className="py-8">
               <div className="flex justify-center mb-4">
                 <div className="w-24 h-24 rounded-full bg-tertiary flex items-center justify-center">
-                  <i className="bi bi-music-note-beamed text-5xl text-accent-orange" />
+                  <i className="bi bi-music-note-beamed text-5xl text-[#fe8019]" />
                 </div>
               </div>
               <audio
