@@ -3,6 +3,7 @@ import { uploadMedia, deleteMedia, getMediaSignedUrl, getRoundTranscriptSignedUr
 import type { Round, RoundMedia } from '../lib/types';
 import MediaPlayer from './MediaPlayer';
 import { downloadFile } from '../lib/downloadFile';
+import ProgressBar from './ProgressBar';
 
 interface Props {
   round: Round;
@@ -13,7 +14,11 @@ interface Props {
 
 export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Props) {
   const [uploading, setUploading] = useState(false);
+  const [uploadingMediaFile, setUploadingMediaFile] = useState<File | null>(null);
+  const [uploadingMediaProgress, setUploadingMediaProgress] = useState(0);
   const [uploadingTranscript, setUploadingTranscript] = useState(false);
+  const [uploadingTranscriptFile, setUploadingTranscriptFile] = useState<File | null>(null);
+  const [uploadingTranscriptProgress, setUploadingTranscriptProgress] = useState(0);
   const [playingMedia, setPlayingMedia] = useState<RoundMedia | null>(null);
 
   function formatDateTime(dateStr: string | null) {
@@ -43,13 +48,29 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadingMediaFile(file);
+    setUploadingMediaProgress(0);
+
+    const progressInterval = setInterval(() => {
+      setUploadingMediaProgress((prev) => {
+        if (prev >= 90) return prev;
+        return prev + 10;
+      });
+    }, 100);
+
     try {
       await uploadMedia(round.id, file);
+      clearInterval(progressInterval);
+      setUploadingMediaProgress(100);
       onMediaChange();
+      setTimeout(() => setUploadingMediaProgress(0), 500);
     } catch {
+      clearInterval(progressInterval);
       alert('Failed to upload media');
+      setUploadingMediaProgress(0);
     } finally {
       setUploading(false);
+      setUploadingMediaFile(null);
     }
   }
 
@@ -145,13 +166,29 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingTranscript(true);
+    setUploadingTranscriptFile(file);
+    setUploadingTranscriptProgress(0);
+
+    const progressInterval = setInterval(() => {
+      setUploadingTranscriptProgress((prev) => {
+        if (prev >= 90) return prev;
+        return prev + 10;
+      });
+    }, 100);
+
     try {
       await uploadRoundTranscript(round.id, file);
+      clearInterval(progressInterval);
+      setUploadingTranscriptProgress(100);
       onMediaChange();
+      setTimeout(() => setUploadingTranscriptProgress(0), 500);
     } catch {
+      clearInterval(progressInterval);
       alert('Failed to upload transcript');
+      setUploadingTranscriptProgress(0);
     } finally {
       setUploadingTranscript(false);
+      setUploadingTranscriptFile(null);
     }
   }
 
@@ -218,6 +255,12 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
             />
           </label>
         </div>
+
+        {uploadingMediaProgress > 0 && uploadingMediaProgress < 100 && (
+          <div className="mb-2">
+            <ProgressBar progress={uploadingMediaProgress} fileName={uploadingMediaFile?.name} />
+          </div>
+        )}
 
         {round.media.length > 0 ? (
           <div className="space-y-2">
@@ -286,6 +329,12 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
           )}
         </div>
 
+        {uploadingTranscriptProgress > 0 && uploadingTranscriptProgress < 100 && (
+          <div className="mb-2">
+            <ProgressBar progress={uploadingTranscriptProgress} fileName={uploadingTranscriptFile?.name} />
+          </div>
+        )}
+
         {round.transcript_path ? (
           <>
             <div className="flex items-center justify-between bg-secondary rounded px-3 py-2">
@@ -300,6 +349,7 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleTranscriptPreview}
+                  disabled={uploadingTranscript}
                   className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200"
                   title="Preview"
                 >
@@ -310,6 +360,7 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
                 </button>
                 <button
                   onClick={handleTranscriptDownload}
+                  disabled={uploadingTranscript}
                   className="text-muted hover:text-accent-aqua"
                   title="Download"
                 >
@@ -319,6 +370,7 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
                 </button>
                 <button
                   onClick={handleTranscriptDelete}
+                  disabled={uploadingTranscript}
                   className="px-4 py-2 bg-tertiary text-accent-red rounded hover:bg-red-900/20 disabled:opacity-50 transition-all duration-200"
                   title="Delete"
                 >

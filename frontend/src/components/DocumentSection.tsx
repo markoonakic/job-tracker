@@ -8,6 +8,7 @@ import {
 } from '../lib/applications';
 import type { Application } from '../lib/types';
 import { downloadFile } from '../lib/downloadFile';
+import ProgressBar from './ProgressBar';
 
 interface Props {
   application: Application;
@@ -16,6 +17,8 @@ interface Props {
 
 export default function DocumentSection({ application, onUpdate }: Props) {
   const [uploading, setUploading] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadingFile, setUploadingFile] = useState<File | null>(null);
   const [justReplaced, setJustReplaced] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -25,7 +28,17 @@ export default function DocumentSection({ application, onUpdate }: Props) {
     isReplace = false
   ) {
     setUploading(type);
+    setUploadingFile(file);
+    setUploadProgress(0);
     setError('');
+
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 90) return prev;
+        return prev + 10;
+      });
+    }, 100);
+
     try {
       let updated: Application;
       if (type === 'cv') {
@@ -33,15 +46,21 @@ export default function DocumentSection({ application, onUpdate }: Props) {
       } else {
         updated = await uploadCoverLetter(application.id, file);
       }
+      clearInterval(progressInterval);
+      setUploadProgress(100);
       onUpdate(updated);
       if (isReplace) {
         setJustReplaced(type);
         setTimeout(() => setJustReplaced(null), 2000);
       }
+      setTimeout(() => setUploadProgress(0), 500);
     } catch {
+      clearInterval(progressInterval);
       setError(`Failed to upload ${type}`);
+      setUploadProgress(0);
     } finally {
       setUploading(null);
+      setUploadingFile(null);
     }
   }
 
@@ -114,62 +133,72 @@ export default function DocumentSection({ application, onUpdate }: Props) {
     const isUploading = uploading === type;
     const canPreview = isPreviewable(path);
     const wasJustReplaced = justReplaced === type;
+    const isProgressActive = isUploading && uploadProgress > 0 && uploadProgress < 100;
 
     return (
       <div className="flex items-center justify-between py-3 border-b border-tertiary last:border-0">
         <span className="text-primary font-medium w-28">{label}</span>
         {hasFile ? (
-          <div className="flex items-center gap-2">
-            <span className={`text-sm ${wasJustReplaced ? 'text-accent-aqua' : 'text-accent-green'}`}>
-              {wasJustReplaced ? 'Replaced!' : 'Uploaded'}
-            </span>
-            <button
-              onClick={() => handlePreview(type)}
-              disabled={!canPreview}
-              className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200"
-              title={canPreview ? 'Preview' : 'Preview not available for this file type'}
-            >
-              Preview
-            </button>
-            <button
-              onClick={() => handleDownload(type)}
-              className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200"
-            >
-              Download
-            </button>
-            <label className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200 cursor-pointer">
-              Replace
+          <div className="flex flex-col gap-2 items-end">
+            {isProgressActive && <ProgressBar progress={uploadProgress} fileName={uploadingFile?.name} />}
+            <div className="flex items-center gap-2">
+              <span className={`text-sm ${wasJustReplaced ? 'text-accent-aqua' : 'text-accent-green'}`}>
+                {wasJustReplaced ? 'Replaced!' : 'Uploaded'}
+              </span>
+              <button
+                onClick={() => handlePreview(type)}
+                disabled={!canPreview || isUploading}
+                className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200"
+                title={canPreview ? 'Preview' : 'Preview not available for this file type'}
+              >
+                Preview
+              </button>
+              <button
+                onClick={() => handleDownload(type)}
+                disabled={isUploading}
+                className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200"
+              >
+                Download
+              </button>
+              <label className="px-4 py-2 bg-tertiary text-primary rounded hover:bg-muted disabled:opacity-50 transition-all duration-200 cursor-pointer">
+                Replace
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleUpload(type, file, true);
+                  }}
+                  className="hidden"
+                  disabled={isUploading}
+                />
+              </label>
+              <button
+                onClick={() => handleDelete(type)}
+                disabled={isUploading}
+                className="px-4 py-2 bg-tertiary text-accent-red rounded hover:bg-red-900/20 disabled:opacity-50 transition-all duration-200"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 items-end">
+            {isProgressActive && <ProgressBar progress={uploadProgress} fileName={uploadingFile?.name} />}
+            <label className="px-4 py-2 bg-accent-aqua text-bg-primary rounded font-medium hover:opacity-90 disabled:opacity-50 transition-all duration-200 cursor-pointer">
+              {isUploading ? 'Uploading...' : 'Upload'}
               <input
                 type="file"
                 accept=".pdf,.doc,.docx"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) handleUpload(type, file, true);
+                  if (file) handleUpload(type, file);
                 }}
                 className="hidden"
+                disabled={isUploading}
               />
             </label>
-            <button
-              onClick={() => handleDelete(type)}
-              className="px-4 py-2 bg-tertiary text-accent-red rounded hover:bg-red-900/20 disabled:opacity-50 transition-all duration-200"
-            >
-              Remove
-            </button>
           </div>
-        ) : (
-          <label className="px-4 py-2 bg-accent-aqua text-bg-primary rounded font-medium hover:opacity-90 disabled:opacity-50 transition-all duration-200 cursor-pointer">
-            {isUploading ? 'Uploading...' : 'Upload'}
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleUpload(type, file);
-              }}
-              className="hidden"
-              disabled={isUploading}
-            />
-          </label>
         )}
       </div>
     );

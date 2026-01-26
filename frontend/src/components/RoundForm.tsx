@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createRound, updateRound, uploadRoundTranscript } from '../lib/rounds';
 import { listRoundTypes } from '../lib/settings';
 import type { Round, RoundType, RoundCreate, RoundUpdate } from '../lib/types';
+import ProgressBar from './ProgressBar';
 
 interface Props {
   applicationId: string;
@@ -14,6 +15,7 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
   const isEditing = Boolean(round);
   const [roundTypes, setRoundTypes] = useState<RoundType[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState('');
 
   function parseDateTime(isoString: string | null): { date: string; time: string } {
@@ -107,7 +109,24 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
 
       // Upload transcript if file is selected
       if (transcriptFile) {
-        savedRound = await uploadRoundTranscript(savedRound.id, transcriptFile);
+        setUploadProgress(0);
+        const progressInterval = setInterval(() => {
+          setUploadProgress((prev) => {
+            if (prev >= 90) return prev;
+            return prev + 10;
+          });
+        }, 100);
+
+        try {
+          savedRound = await uploadRoundTranscript(savedRound.id, transcriptFile);
+          clearInterval(progressInterval);
+          setUploadProgress(100);
+          setTimeout(() => setUploadProgress(0), 500);
+        } catch {
+          clearInterval(progressInterval);
+          setUploadProgress(0);
+          throw new Error('Failed to upload transcript');
+        }
       }
 
       onSave(savedRound);
@@ -226,6 +245,11 @@ export default function RoundForm({ applicationId, round, onSave, onCancel }: Pr
             onChange={(e) => setTranscriptFile(e.target.files?.[0] || null)}
             className="w-full px-3 py-2 bg-secondary border border-muted rounded text-primary focus:outline-none focus:border-accent-aqua"
           />
+          {uploadProgress > 0 && uploadProgress < 100 && (
+            <div className="mt-2">
+              <ProgressBar progress={uploadProgress} fileName={transcriptFile?.name} />
+            </div>
+          )}
           {round?.transcript_path && !transcriptFile && (
             <p className="text-xs text-muted mt-1">Current: {round.transcript_path.split('/').pop()}</p>
           )}
