@@ -32,14 +32,51 @@ export default function MediaPlayer({ media, onClose }: Props) {
   }, [media.id, apiBase]);
 
   useEffect(() => {
+    // Focus management - store and restore focus
+    const previouslyFocused = document.activeElement as HTMLElement;
+    
+    // Focus close button when modal opens
+    const closeButton = document.querySelector('[aria-label^="Close"]') as HTMLElement;
+    closeButton?.focus();
+    
+    // Return focus when modal closes
+    return () => {
+      previouslyFocused?.focus();
+    };
+  }, []);
+
+  useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         onClose();
       }
     }
-
+    
+    function handleTab(event: KeyboardEvent) {
+      if (event.key !== 'Tab') return;
+      
+      const focusableElements = document.querySelectorAll(
+        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+      
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+    
     document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleTab);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleTab);
+    };
   }, [onClose]);
 
   function handleError() {
@@ -55,6 +92,7 @@ export default function MediaPlayer({ media, onClose }: Props) {
           </h3>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="text-muted hover:text-primary p-1 transition-colors duration-200"
           >
             <i className="bi bi-x-lg text-xl" />
