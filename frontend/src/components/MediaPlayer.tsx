@@ -83,9 +83,7 @@ export default function MediaPlayer({ media, onClose }: Props) {
             <div className="py-8">
               <div className="flex justify-center mb-4">
                 <div className="w-24 h-24 rounded-full bg-tertiary flex items-center justify-center">
-                  <svg className="w-12 h-12 text-accent-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                  </svg>
+                  <i className="bi bi-music-note-beamed text-5xl text-accent-orange" />
                 </div>
               </div>
               <audio
