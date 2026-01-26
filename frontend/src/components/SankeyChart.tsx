@@ -126,10 +126,18 @@ export default function SankeyChart() {
       >
         <Tooltip
           contentStyle={{
-            backgroundColor: 'var(--bg-secondary)',
-            border: '1px solid var(--bg-tertiary)',
+            backgroundColor: '#665c54',
+            border: '1px solid #8ec07c',
             borderRadius: '4px',
-            color: 'var(--text-primary)',
+            color: '#fbf1c7',
+            padding: '0.5rem 0.75rem',
+          }}
+          labelStyle={{
+            color: '#fbf1c7',
+            fontWeight: 600,
+          }}
+          itemStyle={{
+            color: '#fbf1c7',
           }}
         />
       </Sankey>
