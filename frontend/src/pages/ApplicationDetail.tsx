@@ -6,6 +6,7 @@ import type { Application, Round } from '../lib/types';
 import RoundForm from '../components/RoundForm';
 import RoundCard from '../components/RoundCard';
 import DocumentSection from '../components/DocumentSection';
+import HistoryViewer from '../components/application/HistoryViewer';
 import Layout from '../components/Layout';
 import EmptyState from '../components/EmptyState';
 
@@ -221,6 +222,10 @@ export default function ApplicationDetail() {
             application={application}
             onUpdate={handleDocumentUpdate}
           />
+        </div>
+
+        <div className="mb-6">
+          <HistoryViewer applicationId={id!} />
         </div>
 
         <div className="bg-secondary rounded-lg p-6">

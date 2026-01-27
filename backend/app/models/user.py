@@ -1,8 +1,10 @@
 import uuid
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import Boolean, DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.sqlite import JSON
 
 from app.core.database import Base
 
@@ -16,6 +18,7 @@ class User(Base):
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    settings: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
 
     applications = relationship("Application", back_populates="user", cascade="all, delete-orphan")
     custom_statuses = relationship("ApplicationStatus", back_populates="user", cascade="all, delete-orphan")

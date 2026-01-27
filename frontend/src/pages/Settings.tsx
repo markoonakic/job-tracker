@@ -5,6 +5,7 @@ import type { Status, RoundType } from '../lib/types';
 import Layout from '../components/Layout';
 import ThemeDropdown from '../components/ThemeDropdown';
 import Loading from '../components/Loading';
+import FeatureToggles from '../components/settings/FeatureToggles';
 
 const THEMES = [
   {
@@ -182,6 +183,15 @@ export default function Settings() {
                 Theme
               </a>
               <a
+                href="#features"
+                onClick={(e) => { e.preventDefault(); setActiveSection('features'); }}
+                className={`block px-4 py-3 text-sm transition-colors duration-200 ${
+                  activeSection === 'features' ? 'text-aqua-bright' : 'text-aqua hover:text-aqua-bright'
+                }`}
+              >
+                Features
+              </a>
+              <a
                 href="#statuses"
                 onClick={(e) => { e.preventDefault(); setActiveSection('statuses'); }}
                 className={`block px-4 py-3 text-sm transition-colors duration-200 ${
@@ -221,6 +231,7 @@ export default function Settings() {
             className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary focus:outline-none focus:border-accent-aqua"
           >
             <option value="theme">Theme</option>
+            <option value="features">Features</option>
             <option value="statuses">Application Statuses</option>
             <option value="rounds">Interview Round Types</option>
             <option value="export">Data Export</option>
@@ -246,6 +257,10 @@ export default function Settings() {
                 onChange={handleThemeChange}
               />
             </div>
+          )}
+
+          {activeSection === 'features' && (
+            <FeatureToggles />
           )}
 
           {activeSection === 'statuses' && (

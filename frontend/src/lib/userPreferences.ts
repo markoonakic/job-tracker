@@ -1,0 +1,23 @@
+import api from './api';
+
+export interface UserPreferences {
+  show_streak_stats: boolean;
+  show_needs_attention: boolean;
+  show_heatmap: boolean;
+}
+
+export interface UserPreferencesUpdate {
+  show_streak_stats?: boolean;
+  show_needs_attention?: boolean;
+  show_heatmap?: boolean;
+}
+
+export async function getPreferences(): Promise<UserPreferences> {
+  const response = await api.get('/user-preferences');
+  return response.data;
+}
+
+export async function updatePreferences(updates: UserPreferencesUpdate): Promise<UserPreferences> {
+  const response = await api.put('/user-preferences', updates);
+  return response.data;
+}

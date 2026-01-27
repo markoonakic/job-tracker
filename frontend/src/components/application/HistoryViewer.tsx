@@ -1,0 +1,138 @@
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getApplicationHistory, deleteHistoryEntry } from '../../lib/history';
+import type { ApplicationStatusHistory } from '../../lib/types';
+
+interface Props {
+  applicationId: string;
+}
+
+export default function HistoryViewer({ applicationId }: Props) {
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const { data: history, isLoading, error } = useQuery({
+    queryKey: ['application-history', applicationId],
+    queryFn: () => getApplicationHistory(applicationId),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (historyId: string) => deleteHistoryEntry(applicationId, historyId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['application-history', applicationId] });
+    },
+  });
+
+  function formatDateTime(dateStr: string) {
+    return new Date(dateStr).toLocaleString();
+  }
+
+  function handleDelete(historyId: string) {
+    if (!confirm('Remove this history entry?')) return;
+    deleteMutation.mutate(historyId);
+  }
+
+  if (isLoading) {
+    return (
+      <div className="bg-secondary rounded-lg p-6">
+        <h2 className="text-lg font-semibold text-primary mb-4">Status History</h2>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted">Loading history...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-secondary rounded-lg p-6">
+        <h2 className="text-lg font-semibold text-primary mb-4">Status History</h2>
+        <div className="text-accent-red">Failed to load history</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-secondary rounded-lg p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold text-primary">Status History</h2>
+        {history && history.length > 0 && (
+          <button
+            onClick={() => setIsEditing(!isEditing)}
+            className={`px-4 py-2 rounded font-medium transition-all duration-200 cursor-pointer ${
+              isEditing
+                ? 'bg-aqua text-bg0 hover:bg-aqua-bright'
+                : 'bg-bg1 text-fg1 hover:bg-bg2 hover:text-fg0'
+            }`}
+          >
+            {isEditing ? 'Done' : 'Edit History'}
+          </button>
+        )}
+      </div>
+
+      {!history || history.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+          <i className="bi-clock-history text-5xl text-muted mb-4" aria-hidden="true" />
+          <p className="text-sm text-muted">No status changes recorded yet.</p>
+          <p className="text-xs text-muted mt-2">History will appear here when you update the application status.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {history.map((entry: ApplicationStatusHistory) => (
+            <div
+              key={entry.id}
+              className="bg-tertiary rounded-lg p-4 flex items-start justify-between gap-4"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  {entry.from_status ? (
+                    <>
+                      <span
+                        className="text-xs px-2 py-1 rounded font-medium"
+                        style={{
+                          backgroundColor: `${entry.from_status.color}20`,
+                          color: entry.from_status.color,
+                        }}
+                      >
+                        {entry.from_status.name}
+                      </span>
+                      <i className="bi-arrow-right text-muted text-xs" />
+                    </>
+                  ) : (
+                    <span className="text-xs text-muted italic">New</span>
+                  )}
+                  <span
+                    className="text-xs px-2 py-1 rounded font-medium"
+                    style={{
+                      backgroundColor: `${entry.to_status.color}20`,
+                      color: entry.to_status.color,
+                    }}
+                  >
+                    {entry.to_status.name}
+                  </span>
+                </div>
+                <p className="text-xs text-muted">
+                  {formatDateTime(entry.changed_at)}
+                </p>
+                {entry.note && (
+                  <p className="text-sm text-secondary mt-2 whitespace-pre-wrap">{entry.note}</p>
+                )}
+              </div>
+              {isEditing && (
+                <button
+                  onClick={() => handleDelete(entry.id)}
+                  disabled={deleteMutation.isPending}
+                  className="px-3 py-1.5 bg-bg1 text-red rounded hover:bg-bg2 hover:text-red-bright transition-all duration-200 flex items-center gap-1.5 text-sm cursor-pointer disabled:opacity-50 flex-shrink-0"
+                  title="Remove"
+                >
+                  <i className="bi-trash" />
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

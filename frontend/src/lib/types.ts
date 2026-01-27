@@ -87,3 +87,11 @@ export interface RoundUpdate {
   notes_summary?: string;
   transcript_summary?: string;
 }
+
+export interface ApplicationStatusHistory {
+  id: string;
+  from_status: Status | null;
+  to_status: Status;
+  changed_at: string;
+  note: string | null;
+}
