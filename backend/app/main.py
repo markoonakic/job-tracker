@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.auth import router as auth_router
 from app.api.applications import router as applications_router
+from app.api.application_history import router as application_history_router
 from app.api.rounds import router as rounds_router
 from app.api.settings import router as settings_router
 from app.api.analytics import router as analytics_router
@@ -35,6 +36,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(applications_router)
+app.include_router(application_history_router)
 app.include_router(rounds_router)
 app.include_router(settings_router)
 app.include_router(analytics_router)

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from app.schemas.auth import Token, TokenRefresh, UserCreate, UserLogin, UserResponse
 from app.schemas.application import (
     ApplicationCreate,
@@ -34,6 +36,20 @@ from app.schemas.admin import (
     AdminRoundTypeUpdate,
 )
 
+from pydantic import BaseModel
+
+
+class ApplicationStatusHistoryResponse(BaseModel):
+    id: str
+    from_status: StatusResponse | None
+    to_status: StatusResponse
+    changed_at: datetime
+    note: str | None
+
+    class Config:
+        from_attributes = True
+
+
 __all__ = [
     "Token",
     "TokenRefresh",
@@ -64,4 +80,5 @@ __all__ = [
     "AdminStatsResponse",
     "AdminStatusUpdate",
     "AdminRoundTypeUpdate",
+    "ApplicationStatusHistoryResponse",
 ]
