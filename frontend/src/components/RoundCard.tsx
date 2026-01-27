@@ -217,7 +217,7 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
           <div className="flex items-center gap-1.5">
             <button
               onClick={onEdit}
-              className="p-2 bg-bg1 text-blue rounded hover:bg-bg2 hover:text-blue-bright transition-all duration-200 cursor-pointer"
+              className="p-2 text-blue rounded hover:bg-bg1 hover:text-blue-bright transition-all duration-200 cursor-pointer"
               aria-label="Edit round"
               title="Edit"
             >
@@ -225,7 +225,7 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
             </button>
             <button
               onClick={onDelete}
-              className="p-2 bg-bg1 text-red rounded hover:bg-bg2 hover:text-red-bright transition-all duration-200 cursor-pointer"
+              className="p-2 text-red rounded hover:bg-bg1 hover:text-red-bright transition-all duration-200 cursor-pointer"
               aria-label="Delete round"
               title="Delete"
             >
