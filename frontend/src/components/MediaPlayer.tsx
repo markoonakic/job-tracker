@@ -93,7 +93,7 @@ export default function MediaPlayer({ media, onClose }: Props) {
           <button
             onClick={onClose}
             aria-label="Close"
-            className="text-muted hover:text-primary p-1 transition-colors duration-200"
+            className="text-fg1 hover:bg-bg1 hover:text-fg0 p-1 rounded transition-all duration-200 cursor-pointer"
           >
             <i className="bi bi-x-lg text-xl" />
           </button>
