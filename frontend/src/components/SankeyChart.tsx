@@ -26,13 +26,13 @@ function SankeyNode({ x, y, width, height, index, payload }: {
 }) {
   // Use node color if available, otherwise fall back to preset colors
   const fallbackColors = [
-    '#8ec07c',
-    '#b8bb26',
-    '#fabd2f',
-    '#fe8019',
-    '#fb4934',
-    '#d3869b',
-    '#83a598',
+    'var(--accent-aqua)',
+    'var(--accent-green)',
+    'var(--accent-yellow)',
+    'var(--accent-orange)',
+    'var(--accent-red)',
+    'var(--accent-purple)',
+    'var(--accent-blue)',
   ];
   const color = payload.color || fallbackColors[index % fallbackColors.length];
 
@@ -85,7 +85,7 @@ export default function SankeyChart() {
   }
 
   if (error) {
-    return <div className="text-center py-8 text-[#fb4934]">{error}</div>;
+    return <div className="text-center py-8 text-accent-red">{error}</div>;
   }
 
   if (!data || data.nodes.length === 0 || data.links.length === 0) {

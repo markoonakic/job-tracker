@@ -185,7 +185,7 @@ export default function Settings() {
                 href="#statuses"
                 onClick={(e) => { e.preventDefault(); setActiveSection('statuses'); }}
                 className={`block px-4 py-3 text-sm transition-colors duration-200 ${
-                  activeSection === 'statuses' ? 'text-[#8ec07c]' : 'text-[#ebdbb2] hover:text-[#8ec07c]'
+                  activeSection === 'statuses' ? 'text-accent-aqua' : 'text-primary hover:text-accent-aqua'
                 }`}
               >
                 Application Statuses
@@ -194,7 +194,7 @@ export default function Settings() {
                 href="#rounds"
                 onClick={(e) => { e.preventDefault(); setActiveSection('rounds'); }}
                 className={`block px-4 py-3 text-sm transition-colors duration-200 ${
-                  activeSection === 'rounds' ? 'text-[#8ec07c]' : 'text-[#ebdbb2] hover:text-[#8ec07c]'
+                  activeSection === 'rounds' ? 'text-accent-aqua' : 'text-primary hover:text-accent-aqua'
                 }`}
               >
                 Interview Round Types
@@ -203,7 +203,7 @@ export default function Settings() {
                 href="#export"
                 onClick={(e) => { e.preventDefault(); setActiveSection('export'); }}
                 className={`block px-4 py-3 text-sm transition-colors duration-200 ${
-                  activeSection === 'export' ? 'text-[#8ec07c]' : 'text-[#ebdbb2] hover:text-[#8ec07c]'
+                  activeSection === 'export' ? 'text-accent-aqua' : 'text-primary hover:text-accent-aqua'
                 }`}
               >
                 Data Export
@@ -218,7 +218,7 @@ export default function Settings() {
           <select
             value={activeSection}
             onChange={(e) => setActiveSection(e.target.value)}
-            className="w-full px-3 py-2 bg-[#3c3836] border border-transparent rounded text-[#ebdbb2] focus:outline-none focus:border-[#8ec07c] transition-all duration-200"
+            className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary focus:outline-none focus:border-accent-aqua"
           >
             <option value="theme">Theme</option>
             <option value="statuses">Application Statuses</option>
@@ -231,7 +231,7 @@ export default function Settings() {
         <main className="flex-1">
           <div className="max-w-6xl mx-auto px-4 py-8">
             {error && (
-              <div className="bg-[#fb4934]/20 border border-[#fb4934] text-[#fb4934] px-4 py-3 rounded mb-6">
+              <div className="bg-accent-red/20 border border-accent-red text-accent-red px-4 py-3 rounded mb-6">
                 {error}
               </div>
             )}

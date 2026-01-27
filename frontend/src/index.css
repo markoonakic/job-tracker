@@ -212,7 +212,6 @@ main a:not(.btn):not(.nav-link) {
 .content-link:hover,
 main a:not(.btn):not(.nav-link):hover {
   color: var(--accent-aqua);
-  text-decoration: underline;
 }
 
 /* Navigation links (top nav, sidebar) */
@@ -381,7 +380,6 @@ textarea:focus-visible {
 a:focus-visible {
   outline: 2px solid var(--accent-aqua);
   outline-offset: 2px;
-  text-decoration: underline;
 }
 
 /* Screen reader only utility */

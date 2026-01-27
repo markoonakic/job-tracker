@@ -74,7 +74,7 @@ export default function Dashboard() {
               to="/admin"
               className="bg-secondary rounded-lg p-6 border border-tertiary hover:bg-tertiary hover:-translate-y-0.5 transition-all duration-200"
             >
-              <h2 className="text-lg font-semibold text-[#d3869b] mb-2">Admin Panel</h2>
+              <h2 className="text-lg font-semibold text-accent-purple mb-2">Admin Panel</h2>
               <p className="text-muted text-sm">Manage users and view system statistics</p>
             </Link>
           )}
@@ -83,7 +83,7 @@ export default function Dashboard() {
         <div className="bg-secondary rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-primary">Activity Overview</h2>
-            <Link to="/analytics" className="text-sm text-[#689d6a] hover:text-[#8ec07c] transition-colors duration-200">
+            <Link to="/analytics" className="text-sm text-accent-aqua">
               View Analytics &rarr;
             </Link>
           </div>

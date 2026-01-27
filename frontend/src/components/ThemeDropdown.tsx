@@ -39,7 +39,7 @@ export default function ThemeDropdown({ themes, currentTheme, onChange }: Props)
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-4 py-2 bg-[#3c3836] border border-[#504945] rounded text-left hover:border-[#8ec07c] focus:outline-none focus:border-[#8ec07c] transition-all duration-200"
+        className="w-full flex items-center justify-between px-4 py-2 bg-tertiary border border-muted rounded text-left hover:border-accent-aqua focus:outline-none focus:border-accent-aqua transition-all duration-200"
       >
         <div className="flex items-center gap-3">
           <span className="text-primary font-medium">{selectedTheme.name}</span>
@@ -70,8 +70,8 @@ export default function ThemeDropdown({ themes, currentTheme, onChange }: Props)
               key={theme.id}
               type="button"
               onClick={() => handleSelect(theme.id)}
-              className={`w-full flex items-center justify-between px-4 py-2 text-left hover:bg-[#3c3836] transition-all duration-200 ${
-                theme.id === currentTheme ? 'bg-[#3c3836]' : ''
+              className={`w-full flex items-center justify-between px-4 py-2 text-left hover:bg-tertiary transition-all duration-200 ${
+                theme.id === currentTheme ? 'bg-tertiary' : ''
               }`}
             >
               <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ export default function ThemeDropdown({ themes, currentTheme, onChange }: Props)
                 </div>
               </div>
               {theme.id === currentTheme && (
-                <i className="bi bi-check-lg text-[#8ec07c]" style={{fontSize: '1.25rem'}} />
+                <i className="bi bi-check-lg text-accent-aqua" style={{fontSize: '1.25rem'}} />
               )}
             </button>
           ))}

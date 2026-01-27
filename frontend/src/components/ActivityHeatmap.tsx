@@ -52,12 +52,12 @@ export default function ActivityHeatmap() {
 
   function getLevelColor(level: number): string {
     switch (level) {
-      case 0: return '#3c3836';
-      case 1: return '#b8bb26';
-      case 2: return '#8ec07c';
-      case 3: return '#83a598';
-      case 4: return '#d3869b';
-      default: return '#3c3836';
+      case 0: return 'var(--bg-tertiary)';
+      case 1: return 'var(--accent-green)';
+      case 2: return 'var(--accent-aqua)';
+      case 3: return 'var(--accent-blue)';
+      case 4: return 'var(--accent-purple)';
+      default: return 'var(--bg-tertiary)';
     }
   }
 
@@ -122,7 +122,7 @@ export default function ActivityHeatmap() {
   }
 
   if (error) {
-    return <div className="text-center py-8 text-[#fb4934]">{error}</div>;
+    return <div className="text-center py-8 text-accent-red">{error}</div>;
   }
 
   if (!data || !data.days || data.days.length === 0 || data.max_count === 0) {
@@ -144,7 +144,7 @@ export default function ActivityHeatmap() {
           <select
             value={viewMode}
             onChange={(e) => setViewMode(e.target.value === 'rolling' ? 'rolling' : parseInt(e.target.value))}
-            className="px-3 py-1 bg-[#3c3836] text-[#ebdbb2] rounded text-sm border border-transparent focus:outline-none focus:border-[#8ec07c] transition-all duration-200"
+            className="px-3 py-1 bg-tertiary text-primary rounded text-sm border border-muted focus:outline-none focus:border-accent-aqua"
           >
             <option value="rolling">Last 12 months</option>
             {years.map((y) => (

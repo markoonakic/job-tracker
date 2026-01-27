@@ -29,13 +29,13 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
   function getOutcomeStyle(outcome: string | null) {
     switch (outcome) {
       case 'passed':
-        return 'text-[#b8bb26]';
+        return 'text-accent-green';
       case 'failed':
-        return 'text-[#fb4934]';
+        return 'text-accent-red';
       case 'cancelled':
         return 'text-muted';
       default:
-        return 'text-[#fabd2f]';
+        return 'text-accent-yellow';
     }
   }
 
@@ -272,9 +272,9 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
               >
                 <div className="flex items-center gap-2">
                   {m.media_type === 'video' ? (
-                    <i className="bi-camera-video text-base text-[#d3869b]" />
+                    <i className="bi-camera-video text-base text-accent-purple" />
                   ) : (
-                    <i className="bi-music-note-beamed text-base text-[#fe8019]" />
+                    <i className="bi-music-note-beamed text-base text-accent-orange" />
                   )}
                   <span className="text-sm text-primary truncate max-w-[200px]">
                     {m.file_path.split('/').pop()}
@@ -342,7 +342,7 @@ export default function RoundCard({ round, onEdit, onDelete, onMediaChange }: Pr
           <>
             <div className="flex items-center justify-between bg-secondary rounded px-3 py-2">
               <div className="flex items-center gap-2">
-                <i className="bi-file-text text-base text-[#fb4934]" />
+                <i className="bi-file-text text-base text-accent-red" />
                 <span className="text-sm text-primary truncate max-w-[200px]">
                   {round.transcript_path.split('/').pop()}
                 </span>
