@@ -209,7 +209,7 @@ export default function ApplicationDetail() {
             </Link>
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-bg1 text-red-bright rounded hover:bg-bg2 transition-all duration-200"
+              className="px-4 py-2 bg-bg1 text-red rounded hover:bg-bg2 hover:text-red-bright transition-all duration-200"
             >
               Delete
             </button>

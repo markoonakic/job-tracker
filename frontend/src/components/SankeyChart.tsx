@@ -51,7 +51,7 @@ function SankeyNode({ x, y, width, height, index, payload }: {
         y={y + height / 2}
         textAnchor="start"
         dominantBaseline="middle"
-        fill="var(--text-primary)"
+        fill="var(--fg1)"
         fontSize={12}
       >
         {payload.name}

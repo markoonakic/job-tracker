@@ -83,7 +83,7 @@ export default function Dashboard() {
         <div className="bg-secondary rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-primary">Activity Overview</h2>
-            <Link to="/analytics" className="text-sm text-accent-aqua">
+            <Link to="/analytics" className="text-sm text-aqua hover:text-aqua-bright transition-colors duration-200">
               View Analytics &rarr;
             </Link>
           </div>

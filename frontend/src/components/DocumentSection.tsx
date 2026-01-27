@@ -172,7 +172,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
               <button
                 onClick={() => handleDelete(type)}
                 disabled={isUploading}
-                className="px-3 py-1.5 bg-bg1 text-red-bright rounded hover:bg-bg2 disabled:opacity-50 transition-all duration-200 flex items-center gap-1.5 text-sm"
+                className="px-3 py-1.5 bg-bg1 text-red rounded hover:bg-bg2 hover:text-red-bright disabled:opacity-50 transition-all duration-200 flex items-center gap-1.5 text-sm"
               >
                 <i className="bi-trash"></i>
                 Remove

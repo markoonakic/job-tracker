@@ -265,38 +265,16 @@
 }
 
 /* Links - standardized pattern */
+/* Note: Removed global 'a' selector - it was overriding Tailwind text utilities */
+/* Links now use explicit Tailwind classes for full control */
+
 a {
-  color: var(--fg1);
   text-decoration: none;
-  transition: color var(--transition-fast);
 }
 
-a:hover,
-a:focus-visible {
-  color: var(--aqua-bright);
-}
-
-a:focus-visible {
-  outline: 2px solid var(--aqua-bright);
-  outline-offset: 2px;
-}
-
-/* Content links (in page content, like company names, back links) */
-.content-link,
-main a:not(.btn):not(.nav-link) {
-  color: var(--aqua-bright);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
-
-.content-link:hover,
-main a:not(.btn):not(.nav-link):hover {
-  color: var(--aqua-bright);
-}
-
-/* Navigation links (top nav, sidebar) */
+/* Navigation links (top nav, sidebar) - use dark aqua by default */
 .nav-link {
-  color: var(--fg1);
+  color: var(--aqua);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
@@ -304,7 +282,6 @@ main a:not(.btn):not(.nav-link):hover {
 .nav-link:hover,
 .nav-link.active {
   color: var(--aqua-bright);
-  /* No border - navigation area is visually distinct */
 }
 
 body {

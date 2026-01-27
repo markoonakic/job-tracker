@@ -52,12 +52,12 @@ export default function ActivityHeatmap() {
 
   function getLevelColor(level: number): string {
     switch (level) {
-      case 0: return 'var(--bg-tertiary)';
-      case 1: return 'var(--accent-green)';
-      case 2: return 'var(--accent-aqua)';
-      case 3: return 'var(--accent-blue)';
-      case 4: return 'var(--accent-purple)';
-      default: return 'var(--bg-tertiary)';
+      case 0: return 'var(--bg2)';
+      case 1: return 'var(--green)';
+      case 2: return 'var(--aqua)';
+      case 3: return 'var(--blue)';
+      case 4: return 'var(--purple)';
+      default: return 'var(--bg2)';
     }
   }
 

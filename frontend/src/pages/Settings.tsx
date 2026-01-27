@@ -176,7 +176,7 @@ export default function Settings() {
                 href="#theme"
                 onClick={(e) => { e.preventDefault(); setActiveSection('theme'); }}
                 className={`block px-4 py-3 text-sm transition-colors duration-200 ${
-                  activeSection === 'theme' ? 'text-aqua-bright' : 'text-fg1 hover:text-aqua-bright'
+                  activeSection === 'theme' ? 'text-aqua-bright' : 'text-aqua hover:text-aqua-bright'
                 }`}
               >
                 Theme
@@ -185,7 +185,7 @@ export default function Settings() {
                 href="#statuses"
                 onClick={(e) => { e.preventDefault(); setActiveSection('statuses'); }}
                 className={`block px-4 py-3 text-sm transition-colors duration-200 ${
-                  activeSection === 'statuses' ? 'text-accent-aqua' : 'text-primary hover:text-accent-aqua'
+                  activeSection === 'statuses' ? 'text-aqua-bright' : 'text-aqua hover:text-aqua-bright'
                 }`}
               >
                 Application Statuses
@@ -194,7 +194,7 @@ export default function Settings() {
                 href="#rounds"
                 onClick={(e) => { e.preventDefault(); setActiveSection('rounds'); }}
                 className={`block px-4 py-3 text-sm transition-colors duration-200 ${
-                  activeSection === 'rounds' ? 'text-accent-aqua' : 'text-primary hover:text-accent-aqua'
+                  activeSection === 'rounds' ? 'text-aqua-bright' : 'text-aqua hover:text-aqua-bright'
                 }`}
               >
                 Interview Round Types
@@ -203,7 +203,7 @@ export default function Settings() {
                 href="#export"
                 onClick={(e) => { e.preventDefault(); setActiveSection('export'); }}
                 className={`block px-4 py-3 text-sm transition-colors duration-200 ${
-                  activeSection === 'export' ? 'text-accent-aqua' : 'text-primary hover:text-accent-aqua'
+                  activeSection === 'export' ? 'text-aqua-bright' : 'text-aqua hover:text-aqua-bright'
                 }`}
               >
                 Data Export
@@ -287,7 +287,7 @@ export default function Settings() {
                         {!status.is_default && (
                           <button
                             onClick={() => handleDeleteStatus(status)}
-                            className="text-xs text-red-bright hover:text-aqua-bright transition-colors duration-200"
+                            className="text-xs text-red hover:text-red-bright transition-colors duration-200"
                           >
                             Delete
                           </button>

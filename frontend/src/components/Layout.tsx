@@ -15,7 +15,7 @@ export default function Layout({ children }: Props) {
   }
 
   function linkClass(path: string) {
-    return isActive(path) ? 'text-aqua-bright' : 'text-fg1 hover:text-aqua-bright transition-colors duration-200';
+    return isActive(path) ? 'text-aqua-bright' : 'text-aqua hover:text-aqua-bright transition-colors duration-200';
   }
 
   return (
