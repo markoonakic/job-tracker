@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models import Application, ApplicationStatus, User
-from app.schemas import DashboardKPIsResponse
+from app.schemas import DashboardKPIsResponse, NeedsAttentionResponse, NeedsAttentionItem
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -105,4 +105,92 @@ async def get_dashboard_kpis(
         last_30_days=last_30_days_count,
         last_30_days_trend=last_30_days_trend,
         active_opportunities=active_opportunities,
+    )
+
+
+@router.get("/needs-attention", response_model=NeedsAttentionResponse)
+async def get_needs_attention(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    today = date.today()
+
+    # Calculate date thresholds
+    follow_up_start = today - timedelta(days=10)
+    follow_up_end = today - timedelta(days=7)
+    no_response_threshold = today - timedelta(days=7)
+
+    # Follow-ups: Applications 7-10 days ago in "Applied" status
+    result_follow_ups = await db.execute(
+        select(Application, ApplicationStatus)
+        .join(ApplicationStatus)
+        .where(
+            Application.user_id == user.id,
+            ApplicationStatus.name == "Applied",
+            Application.applied_at >= follow_up_start,
+            Application.applied_at <= follow_up_end,
+        )
+        .order_by(Application.applied_at.desc())
+        .limit(5)
+    )
+    follow_ups_rows = result_follow_ups.all()
+    follow_ups = [
+        NeedsAttentionItem(
+            id=str(app.id),
+            company=app.company,
+            job_title=app.job_title,
+            days_since=(today - app.applied_at).days,
+        )
+        for app, _ in follow_ups_rows
+    ]
+
+    # No responses: Applications 7+ days ago in "Applied" or "Screening"
+    result_no_responses = await db.execute(
+        select(Application, ApplicationStatus)
+        .join(ApplicationStatus)
+        .where(
+            Application.user_id == user.id,
+            ApplicationStatus.name.in_(["Applied", "Screening"]),
+            Application.applied_at < no_response_threshold,
+        )
+        .order_by(Application.applied_at.asc())
+        .limit(5)
+    )
+    no_responses_rows = result_no_responses.all()
+    no_responses = [
+        NeedsAttentionItem(
+            id=str(app.id),
+            company=app.company,
+            job_title=app.job_title,
+            days_since=(today - app.applied_at).days,
+        )
+        for app, _ in no_responses_rows
+    ]
+
+    # Interviewing: Applications in "Interviewing" status
+    result_interviewing = await db.execute(
+        select(Application, ApplicationStatus)
+        .join(ApplicationStatus)
+        .where(
+            Application.user_id == user.id,
+            ApplicationStatus.name == "Interviewing",
+        )
+        .order_by(Application.applied_at.desc())
+        .limit(5)
+    )
+    interviewing_rows = result_interviewing.all()
+    interviewing = [
+        NeedsAttentionItem(
+            id=str(app.id),
+            company=app.company,
+            job_title=app.job_title,
+            days_since=(today - app.applied_at).days,
+        )
+        for app, _ in interviewing_rows
+    ]
+
+    return NeedsAttentionResponse(
+        follow_ups=follow_ups,
+        no_responses=no_responses,
+        interviewing=interviewing,
     )

@@ -36,6 +36,8 @@ from app.schemas.admin import (
     AdminRoundTypeUpdate,
 )
 
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -45,6 +47,19 @@ class DashboardKPIsResponse(BaseModel):
     last_30_days: int
     last_30_days_trend: float
     active_opportunities: int
+
+
+class NeedsAttentionItem(BaseModel):
+    id: str
+    company: str
+    job_title: str
+    days_since: int
+
+
+class NeedsAttentionResponse(BaseModel):
+    follow_ups: List[NeedsAttentionItem]
+    no_responses: List[NeedsAttentionItem]
+    interviewing: List[NeedsAttentionItem]
 
 
 class ApplicationStatusHistoryResponse(BaseModel):
@@ -90,4 +105,6 @@ __all__ = [
     "AdminRoundTypeUpdate",
     "DashboardKPIsResponse",
     "ApplicationStatusHistoryResponse",
+    "NeedsAttentionItem",
+    "NeedsAttentionResponse",
 ]
