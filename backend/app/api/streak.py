@@ -74,8 +74,8 @@ async def get_streak(
 
 @router.post("/record")
 async def record_activity(
-    db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Record activity that counts toward streak.
