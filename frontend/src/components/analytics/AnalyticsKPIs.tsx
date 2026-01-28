@@ -45,7 +45,7 @@ export default function AnalyticsKPIs({ period }: AnalyticsKPIsProps) {
     async function fetchKPIs() {
       setLoading(true);
       try {
-        const response = await api.get(`/analytics/kpis?period=${period}`);
+        const response = await api.get(`/api/analytics/kpis?period=${period}`);
         setKpis(response.data);
       } catch (err) {
         console.error('Error fetching KPIs, using mock data:', err);
