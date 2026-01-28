@@ -39,7 +39,7 @@ export default function FlameEmblem() {
 
   if (isLoading) {
     return (
-      <div className="bg-secondary rounded-lg p-6 border border-tertiary">
+      <div className="bg-secondary p-6 mb-6">
         <div className="animate-pulse">
           <div className="h-20 bg-tertiary rounded mb-4"></div>
           <div className="h-4 bg-tertiary rounded w-48"></div>
@@ -67,7 +67,7 @@ export default function FlameEmblem() {
   const flameColors = getFlameColors();
 
   return (
-    <div className="bg-secondary rounded-lg p-6 border border-tertiary">
+    <div className="bg-secondary p-6 mb-6">
       <div className="flex flex-col items-center justify-center py-4">
         {/* Emblem frame - Elden Ring inspired ornate border */}
         <div

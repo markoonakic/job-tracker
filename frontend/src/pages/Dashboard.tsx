@@ -47,12 +47,10 @@ export default function Dashboard() {
           <>
             <h1 className="text-2xl font-bold text-primary mb-6">Dashboard</h1>
 
-            {/* Flame + KPIs Container */}
-            <div className="bg-secondary rounded-lg border border-tertiary mb-6">
-              <FlameEmblem />
-              <div className="px-6 pb-6">
-                <KPICards />
-              </div>
+            <FlameEmblem />
+
+            <div className="bg-secondary rounded-lg border border-tertiary p-6 mb-6">
+              <KPICards />
             </div>
 
             <QuickActions />
