@@ -120,8 +120,8 @@ export default function WeeklyBarChart({ period }: WeeklyBarChartProps) {
               color: colors.fg1,
             }}
           />
-          <>
-            {data.map((_, segmentIndex) => (
+          {[
+            ...data.map((_, segmentIndex) => (
               <Bar
                 key={`applications-${segmentIndex}`}
                 data={getSegmentData(segmentIndex)}
@@ -133,8 +133,8 @@ export default function WeeklyBarChart({ period }: WeeklyBarChartProps) {
                 onMouseLeave={() => setHoveredSegment(null)}
                 style={{ cursor: 'pointer', transition: 'fill 0.2s ease' }}
               />
-            ))}
-            {data.map((_, segmentIndex) => (
+            )),
+            ...data.map((_, segmentIndex) => (
               <Bar
                 key={`interviews-${segmentIndex}`}
                 data={getSegmentData(segmentIndex)}
@@ -146,8 +146,8 @@ export default function WeeklyBarChart({ period }: WeeklyBarChartProps) {
                 onMouseLeave={() => setHoveredSegment(null)}
                 style={{ cursor: 'pointer', transition: 'fill 0.2s ease' }}
               />
-            ))}
-          </>
+            )),
+          ]}
         </BarChart>
       </ResponsiveContainer>
     </div>
