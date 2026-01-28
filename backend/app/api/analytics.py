@@ -11,6 +11,9 @@ from app.schemas.analytics import AnalyticsKPIsResponse, HeatmapData, HeatmapDay
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
+# Sankey diagram source node color (matches frontend aqua-bright: #8ec07c)
+SANKEY_SOURCE_COLOR = "#8ec07c"
+
 
 @router.get("/sankey", response_model=SankeyData)
 async def get_sankey_data(
@@ -70,7 +73,7 @@ async def get_sankey_data(
             seen_statuses.add(t['to_status'])
 
     # Build nodes: start with Applications source, then each unique status
-    nodes = [SankeyNode(id="applications", name="Applications", color="#8ec07c")]
+    nodes = [SankeyNode(id="applications", name="Applications", color=SANKEY_SOURCE_COLOR)]
     status_name_to_node_id = {}
     status_name_to_color = {}
 
@@ -89,7 +92,7 @@ async def get_sankey_data(
         nodes.append(SankeyNode(
             id=node_id,
             name=status_name,
-            color=status_name_to_color.get(status_name, "#8ec07c")
+            color=status_name_to_color.get(status_name, SANKEY_SOURCE_COLOR)
         ))
 
     # Count how many applications took each path segment
