@@ -43,7 +43,7 @@ export default function KPICards() {
   useEffect(() => {
     async function fetchKPIs() {
       try {
-        const response = await api.get('/dashboard/kpis');
+        const response = await api.get('/api/dashboard/kpis');
         setKpis(response.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
