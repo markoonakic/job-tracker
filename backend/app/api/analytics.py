@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import get_current_user
-from app.models import Application, ApplicationStatus, User
+from app.models import Application, ApplicationStatus, ApplicationStatusHistory, User
 from app.schemas.analytics import AnalyticsKPIsResponse, HeatmapData, HeatmapDay, SankeyData, SankeyLink, SankeyNode
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
@@ -18,70 +18,107 @@ async def get_sankey_data(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Build a sequential funnel Sankey diagram showing application progression.
-    Only includes forward-path statuses (Applied → Screening → Interviewing → Offer → Accepted).
+    Build Sankey diagram from actual application status transitions.
+    Shows all unique trajectories/journeys applications have taken.
     """
-    # Get all statuses ordered by their order field
+    from sqlalchemy.orm import aliased
+
+    # Get all history entries with status details for this user
+    from_status = aliased(ApplicationStatus)
+    to_status = aliased(ApplicationStatus)
+
     result = await db.execute(
-        select(ApplicationStatus)
-        .order_by(ApplicationStatus.order)
-    )
-    all_statuses = result.scalars().all()
-
-    # Forward path statuses (orders 1-5)
-    forward_orders = [1, 2, 3, 4, 5]  # Applied, Screening, Interviewing, Offer, Accepted
-    forward_statuses = {s.order: s for s in all_statuses if s.order in forward_orders}
-
-    # Count applications at each stage
-    # An application is "at" a stage if its current status has that order OR higher
-    stage_counts = {}
-    for order in forward_orders:
-        # Count applications with status order >= current stage
-        # This represents how many applications reached this stage or beyond
-        result = await db.execute(
-            select(func.count(Application.id))
-            .join(ApplicationStatus)
-            .where(
-                Application.user_id == user.id,
-                ApplicationStatus.order >= order
-            )
+        select(
+            ApplicationStatusHistory.application_id,
+            ApplicationStatusHistory.from_status_id,
+            ApplicationStatusHistory.to_status_id,
+            from_status.name.label('from_status_name'),
+            from_status.color.label('from_status_color'),
+            to_status.name.label('to_status_name'),
+            to_status.color.label('to_status_color'),
         )
-        stage_counts[order] = result.scalar() or 0
+        .select_from(ApplicationStatusHistory)
+        .join(Application, ApplicationStatusHistory.application_id == Application.id)
+        .join(to_status, ApplicationStatusHistory.to_status_id == to_status.id)
+        .outerjoin(from_status, ApplicationStatusHistory.from_status_id == from_status.id)
+        .where(Application.user_id == user.id)
+        .order_by(ApplicationStatusHistory.application_id, ApplicationStatusHistory.changed_at)
+    )
+    all_transitions = result.all()
 
-    # Calculate flow between stages
-    # The flow from stage A to stage B is the count at stage B
-    # (since to reach B, you must have passed through A)
+    if not all_transitions:
+        return SankeyData(nodes=[], links=[])
 
-    # Build nodes: start with Applications source, then each stage
+    # Build unique paths per application
+    # Group transitions by application
+    from collections import defaultdict
+
+    app_transitions = defaultdict(list)
+    for transition in all_transitions:
+        app_transitions[transition.application_id].append({
+            'from_status': transition.from_status_name,
+            'to_status': transition.to_status_name,
+            'to_color': transition.to_status_color,
+        })
+
+    # Collect all unique statuses that appear in journeys
+    seen_statuses = set()
+    for transitions in app_transitions.values():
+        for t in transitions:
+            if t['from_status']:
+                seen_statuses.add(t['from_status'])
+            seen_statuses.add(t['to_status'])
+
+    # Build nodes: start with Applications source, then each unique status
     nodes = [SankeyNode(id="applications", name="Applications", color="#8ec07c")]
+    status_name_to_node_id = {}
+    status_name_to_color = {}
 
-    for order in forward_orders:
-        status = forward_statuses[order]
-        nodes.append(SankeyNode(id=str(status.id), name=status.name, color=status.color))
+    for status_name in sorted(seen_statuses):
+        # Find the color for this status
+        for transitions in app_transitions.values():
+            for t in transitions:
+                if t['to_status'] == status_name:
+                    status_name_to_color[status_name] = t['to_color']
+                    break
+            if status_name in status_name_to_color:
+                break
 
-    # Build sequential links
-    links = []
-    for i, order in enumerate(forward_orders):
-        if i == 0:
-            # Applications to Applied
-            source_id = "applications"
-        else:
-            # Previous stage to current stage
-            prev_status = forward_statuses[forward_orders[i - 1]]
-            source_id = str(prev_status.id)
+        node_id = f"status_{status_name.lower().replace(' ', '_').replace('/', '_')}"
+        status_name_to_node_id[status_name] = node_id
+        nodes.append(SankeyNode(
+            id=node_id,
+            name=status_name,
+            color=status_name_to_color.get(status_name, "#8ec07c")
+        ))
 
-        target_status = forward_statuses[order]
-        target_id = str(target_status.id)
+    # Count how many applications took each path segment
+    link_counts = {}  # {(source_id, target_id): count}
 
-        # Flow value = count at this stage
-        flow_value = stage_counts[order]
+    for app_id, transitions in app_transitions.items():
+        for i, t in enumerate(transitions):
+            # Determine source node
+            if i == 0 or t['from_status'] is None:
+                # First transition comes from "Applications" node
+                source_id = "applications"
+            else:
+                source_id = status_name_to_node_id.get(t['from_status'])
+                if not source_id:
+                    # Status not in our tracked statuses, skip
+                    continue
 
-        if flow_value > 0:
-            links.append(SankeyLink(
-                source=source_id,
-                target=target_id,
-                value=flow_value,
-            ))
+            target_id = status_name_to_node_id.get(t['to_status'])
+            if not target_id:
+                continue
+
+            link_key = (source_id, target_id)
+            link_counts[link_key] = link_counts.get(link_key, 0) + 1
+
+    # Convert to Sankey links
+    links = [
+        SankeyLink(source=source, target=target, value=count)
+        for (source, target), count in link_counts.items()
+    ]
 
     return SankeyData(nodes=nodes, links=links)
 
