@@ -51,11 +51,14 @@ export default function FlameEmblem() {
   if (!data) return null;
 
   const isEmber = data.ember_active;
-  const isExtinguished = data.current_streak === 0 && !isEmber;
+  // Extinguished means HAD a streak but lost it (longest_streak > 0)
+  const isExtinguished = data.current_streak === 0 && !isEmber && data.longest_streak > 0;
+  // Never lit means never had any streak
+  const neverLit = data.current_streak === 0 && !isEmber && data.longest_streak === 0;
 
   // Determine flame colors based on state
   const getFlameColors = () => {
-    if (isExtinguished) {
+    if (isExtinguished || neverLit) {
       return { primary: colors.gray, secondary: colors.gray };
     }
     if (isEmber) {
@@ -73,7 +76,7 @@ export default function FlameEmblem() {
         <div
           className={`
             relative px-12 py-6 border-2 rounded-lg
-            ${isExtinguished ? 'border-tertiary' : 'border-accent-aqua'}
+            ${isExtinguished || neverLit ? 'border-tertiary' : 'border-accent-aqua'}
             transition-all duration-300
           `}
           style={{
@@ -89,7 +92,7 @@ export default function FlameEmblem() {
 
           {/* Flame display */}
           <div className="text-center mb-3">
-            {isExtinguished ? (
+            {isExtinguished || neverLit ? (
               <span className="text-4xl opacity-30">○</span>
             ) : (
               <span
@@ -116,11 +119,16 @@ export default function FlameEmblem() {
                 💀 EXTINGUISHED — The fire has gone cold...
               </div>
             )}
+            {neverLit && (
+              <div className="text-sm mt-1" style={{ color: colors.fg4 }}>
+                ❄️ COLD — Awaiting the first spark...
+              </div>
+            )}
           </div>
         </div>
 
         {/* Stage name and message */}
-        {!isExtinguished && (
+        {!neverLit && !isExtinguished && (
           <>
             <div className="text-center mt-4">
               <div className="text-sm font-semibold" style={{ color: colors.fg4 }}>
