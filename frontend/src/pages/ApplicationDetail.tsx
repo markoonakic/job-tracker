@@ -231,12 +231,14 @@ export default function ApplicationDetail() {
         <div className="bg-secondary rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-primary">Interview Rounds</h2>
-            <button
-              onClick={() => setShowRoundForm(true)}
-              className="px-4 py-2 bg-aqua text-bg0 rounded font-medium hover:bg-aqua-bright transition-all duration-200 cursor-pointer"
-            >
-              Add Round
-            </button>
+            {application.rounds && application.rounds.length > 0 && (
+              <button
+                onClick={() => setShowRoundForm(true)}
+                className="px-4 py-2 bg-aqua text-bg0 rounded font-medium hover:bg-aqua-bright transition-all duration-200 cursor-pointer"
+              >
+                Add Round
+              </button>
+            )}
           </div>
 
           {(showRoundForm || editingRound) && (
