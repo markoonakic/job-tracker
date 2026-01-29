@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from 'recharts';
 import api from '@/lib/api';
 import { colors } from '@/lib/theme';
@@ -26,28 +27,6 @@ export default function WeeklyBarChart({ period }: WeeklyBarChartProps) {
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
   const [hoveredSegment, setHoveredSegment] = useState<number | null>(null);
-
-  // Get bar color considering both bar type AND segment hover
-  const getBarColor = (barKey: string, segmentIndex: number) => {
-    const isHovered = hoveredSegment === segmentIndex;
-
-    if (barKey === 'applications') {
-      return isHovered ? colors.blueBright : colors.blue;
-    }
-    if (barKey === 'interviews') {
-      return isHovered ? colors.purpleBright : colors.purple;
-    }
-    return colors.blue;
-  };
-
-  // Transform data to enable per-segment hover by using unique keys
-  const getSegmentData = (segmentIndex: number) => {
-    return {
-      week: data[segmentIndex].week,
-      applications: data[segmentIndex].applications,
-      interviews: data[segmentIndex].interviews,
-    };
-  };
 
   useEffect(() => {
     async function fetchData() {
@@ -105,45 +84,37 @@ export default function WeeklyBarChart({ period }: WeeklyBarChartProps) {
             stroke={colors.bg1}
           />
           <Tooltip
+            wrapperStyle={{ zIndex: 1000 }}
             contentStyle={{
-              backgroundColor: colors.bg0Hard,
-              border: `1px solid ${colors.bg1}`,
+              backgroundColor: colors.bg3,
+              border: `1px solid ${colors.aquaBright}`,
               borderRadius: '4px',
-              color: colors.fg1,
+              color: colors.fg0,
               padding: '0.5rem 0.75rem',
             }}
-            labelStyle={{
-              color: colors.fg1,
-              fontWeight: 600,
-            }}
-            itemStyle={{
-              color: colors.fg1,
-            }}
+            labelStyle={{ color: colors.fg0, fontWeight: 600 }}
+            itemStyle={{ color: colors.fg0 }}
           />
-          {data.flatMap((_, segmentIndex) => [
-            <Bar
-              key={`applications-${segmentIndex}`}
-              data={getSegmentData(segmentIndex)}
-              dataKey="applications"
-              fill={getBarColor('applications', segmentIndex)}
-              name="Applications"
-              radius={[4, 4, 0, 0]}
-              onMouseEnter={() => setHoveredSegment(segmentIndex)}
-              onMouseLeave={() => setHoveredSegment(null)}
-              style={{ cursor: 'pointer', transition: 'fill 0.2s ease' }}
-            />,
-            <Bar
-              key={`interviews-${segmentIndex}`}
-              data={getSegmentData(segmentIndex)}
-              dataKey="interviews"
-              fill={getBarColor('interviews', segmentIndex)}
-              name="Interviews"
-              radius={[4, 4, 0, 0]}
-              onMouseEnter={() => setHoveredSegment(segmentIndex)}
-              onMouseLeave={() => setHoveredSegment(null)}
-              style={{ cursor: 'pointer', transition: 'fill 0.2s ease' }}
-            />,
-          ])}
+          <Bar dataKey="applications" name="Applications" maxBarSize={50}>
+            {data.map((entry, index) => (
+              <Cell
+                key={`app-${index}`}
+                fill={hoveredSegment === index ? colors.blueBright : colors.blue}
+                onMouseEnter={() => setHoveredSegment(index)}
+                onMouseLeave={() => setHoveredSegment(null)}
+              />
+            ))}
+          </Bar>
+          <Bar dataKey="interviews" name="Interviews" maxBarSize={50}>
+            {data.map((entry, index) => (
+              <Cell
+                key={`int-${index}`}
+                fill={hoveredSegment === index ? colors.purpleBright : colors.purple}
+                onMouseEnter={() => setHoveredSegment(index)}
+                onMouseLeave={() => setHoveredSegment(null)}
+              />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>
