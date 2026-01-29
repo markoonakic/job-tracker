@@ -295,15 +295,17 @@ export default function Settings() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => startEditStatus(status)}
-                          className="text-xs text-aqua hover:text-aqua-bright transition-colors duration-200 cursor-pointer"
+                          className="px-3 py-1.5 bg-bg1 text-fg1 text-xs rounded hover:bg-bg2 hover:text-fg0 transition-colors duration-200 flex items-center gap-1.5"
                         >
+                          <i className="bi-pencil text-xs"></i>
                           Edit
                         </button>
                         {!status.is_default && (
                           <button
                             onClick={() => handleDeleteStatus(status)}
-                            className="text-xs text-red hover:text-red-bright transition-colors duration-200 cursor-pointer"
+                            className="px-3 py-1.5 bg-bg1 text-red text-xs rounded hover:bg-bg2 hover:text-red-bright transition-colors duration-200 flex items-center gap-1.5"
                           >
+                            <i className="bi-trash text-xs"></i>
                             Delete
                           </button>
                         )}
