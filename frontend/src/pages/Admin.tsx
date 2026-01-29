@@ -12,6 +12,9 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'stats' | 'users'>('stats');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   useEffect(() => {
     loadData();
@@ -54,6 +57,10 @@ export default function Admin() {
   function formatDate(dateStr: string) {
     return new Date(dateStr).toLocaleDateString();
   }
+
+  const filteredUsers = users.filter(u =>
+    u.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Layout>
@@ -123,52 +130,74 @@ export default function Admin() {
             </div>
           </div>
         ) : (
-          <div className="bg-secondary rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-tertiary">
-                <tr>
-                  <th className="px-4 py-3 text-left text-muted text-sm font-medium">Email</th>
-                  <th className="px-4 py-3 text-left text-muted text-sm font-medium">Joined</th>
-                  <th className="px-4 py-3 text-center text-muted text-sm font-medium">Admin</th>
-                  <th className="px-4 py-3 text-center text-muted text-sm font-medium">Active</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-tertiary">
-                {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-tertiary/50">
-                    <td className="px-4 py-3 text-primary">{u.email}</td>
-                    <td className="px-4 py-3 text-secondary">{formatDate(u.created_at)}</td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => handleToggleAdmin(u.id, u.is_admin)}
-                        disabled={u.id === user?.id}
-                        className={`px-2 py-1 rounded text-xs cursor-pointer ${
-                          u.is_admin
-                            ? 'bg-accent-purple/20 text-accent-purple'
-                            : 'bg-bg1 text-muted'
-                        } disabled:opacity-50`}
-                      >
-                        {u.is_admin ? 'Yes' : 'No'}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => handleToggleActive(u.id, u.is_active)}
-                        disabled={u.id === user?.id}
-                        className={`px-2 py-1 rounded text-xs cursor-pointer ${
-                          u.is_active
-                            ? 'bg-accent-green/20 text-accent-green'
-                            : 'bg-accent-red/20 text-accent-red'
-                        } disabled:opacity-50`}
-                      >
-                        {u.is_active ? 'Yes' : 'No'}
-                      </button>
-                    </td>
+          <>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-primary">Users</h2>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="px-4 py-2 bg-aqua text-bg0 rounded font-medium hover:bg-aqua-bright transition-all duration-200 cursor-pointer"
+              >
+                Create User
+              </button>
+            </div>
+
+            <div className="bg-secondary rounded-lg p-4 mb-6">
+              <input
+                type="text"
+                placeholder="Search by email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua"
+              />
+            </div>
+
+            <div className="bg-secondary rounded-lg overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-tertiary">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-muted text-sm font-medium">Email</th>
+                    <th className="px-4 py-3 text-left text-muted text-sm font-medium">Joined</th>
+                    <th className="px-4 py-3 text-center text-muted text-sm font-medium">Admin</th>
+                    <th className="px-4 py-3 text-center text-muted text-sm font-medium">Active</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-tertiary">
+                  {filteredUsers.map((u) => (
+                    <tr key={u.id} className="hover:bg-tertiary/50">
+                      <td className="px-4 py-3 text-primary">{u.email}</td>
+                      <td className="px-4 py-3 text-secondary">{formatDate(u.created_at)}</td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          onClick={() => handleToggleAdmin(u.id, u.is_admin)}
+                          disabled={u.id === user?.id}
+                          className={`px-2 py-1 rounded text-xs cursor-pointer ${
+                            u.is_admin
+                              ? 'bg-accent-purple/20 text-accent-purple'
+                              : 'bg-bg1 text-muted'
+                          } disabled:opacity-50`}
+                        >
+                          {u.is_admin ? 'Yes' : 'No'}
+                        </button>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          onClick={() => handleToggleActive(u.id, u.is_active)}
+                          disabled={u.id === user?.id}
+                          className={`px-2 py-1 rounded text-xs cursor-pointer ${
+                            u.is_active
+                              ? 'bg-accent-green/20 text-accent-green'
+                              : 'bg-accent-red/20 text-accent-red'
+                          } disabled:opacity-50`}
+                        >
+                          {u.is_active ? 'Yes' : 'No'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </Layout>
