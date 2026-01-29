@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import api from '@/lib/api';
 import { colors } from '@/lib/theme';
+import FrozenBlockIcon from '@/components/icons/FrozenBlockIcon';
+import SmokingOrbIcon from '@/components/icons/SmokingOrbIcon';
+import BurningEmbersIcon from '@/components/icons/BurningEmbersIcon';
+import CelebrationFireIcon from '@/components/icons/CelebrationFireIcon';
 
 interface StreakData {
   current_streak: number;
@@ -11,6 +16,7 @@ interface StreakData {
   flame_stage: number;
   flame_name: string;
   flame_art: string;
+  streak_exhausted_at: string | null;
 }
 
 const flameMessages: Record<number, string> = {
@@ -31,11 +37,23 @@ const flameMessages: Record<number, string> = {
   15: "Beyond mortal...",
 };
 
+type FlameState = 'BURNING' | 'EMBER' | 'EXTINGUISHED' | 'COLD';
+
 export default function FlameEmblem() {
   const { data, isLoading } = useQuery<StreakData>({
     queryKey: ['streak'],
     queryFn: () => api.get('/api/streak').then(r => r.data),
   });
+
+  const isRecentlyExhausted = useMemo(() => {
+    if (!data || !data.streak_exhausted_at || data.longest_streak === 0) {
+      return false;
+    }
+    const daysSinceExhausted = Math.floor(
+      (Date.now() - new Date(data.streak_exhausted_at).getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return daysSinceExhausted <= 7;
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -56,18 +74,7 @@ export default function FlameEmblem() {
   // Never lit means never had any streak
   const neverLit = data.current_streak === 0 && !isEmber && data.longest_streak === 0;
 
-  // Determine flame colors based on state
-  const getFlameColors = () => {
-    if (isExtinguished || neverLit) {
-      return { primary: colors.gray, secondary: colors.gray };
-    }
-    if (isEmber) {
-      return { primary: colors.orange, secondary: colors.yellowBright };
-    }
-    return { primary: colors.orangeBright, secondary: colors.yellowBright };
-  };
-
-  const flameColors = getFlameColors();
+  const flameState: FlameState = neverLit ? 'COLD' : isExtinguished ? 'EXTINGUISHED' : isEmber ? 'EMBER' : 'BURNING';
 
   return (
     <div className="bg-secondary p-6 mb-6">
@@ -76,12 +83,12 @@ export default function FlameEmblem() {
         <div
           className={`
             relative px-12 py-6 border-2 rounded-lg
-            ${isExtinguished || neverLit ? 'border-tertiary' : 'border-accent-aqua'}
+            ${flameState === 'COLD' ? 'border-tertiary' : 'border-accent-aqua'}
             transition-all duration-300
           `}
           style={{
             ...(isEmber && { borderColor: colors.orange }),
-            animation: (isEmber || data.current_streak > 0) ? 'flicker 2s ease-in-out infinite' : 'none',
+            animation: (flameState === 'BURNING' || flameState === 'EMBER') ? 'flicker 2s ease-in-out infinite' : 'none',
           }}
         >
           {/* Decorative corners */}
@@ -92,15 +99,21 @@ export default function FlameEmblem() {
 
           {/* Flame display */}
           <div className="text-center mb-3">
-            {isExtinguished || neverLit ? (
-              <span className="text-4xl opacity-30">○</span>
-            ) : (
-              <span
-                className="text-4xl"
-                style={{ color: flameColors.primary }}
-              >
-                🔥
-              </span>
+            {flameState === 'BURNING' && (
+              <CelebrationFireIcon color={colors.orangeBright} />
+            )}
+            {flameState === 'EMBER' && (
+              <BurningEmbersIcon color={colors.yellowBright} />
+            )}
+            {flameState === 'EXTINGUISHED' && (
+              isRecentlyExhausted ? (
+                <SmokingOrbIcon color={colors.gray} />
+              ) : (
+                <FrozenBlockIcon color={colors.fg4} />
+              )
+            )}
+            {flameState === 'COLD' && (
+              <FrozenBlockIcon color={colors.fg4} />
             )}
           </div>
 
@@ -109,26 +122,28 @@ export default function FlameEmblem() {
             <div className="text-3xl font-bold" style={{ color: colors.fg1 }}>
               {data.current_streak} DAYS
             </div>
-            {isEmber && (
-              <div className="text-sm mt-1" style={{ color: colors.orange }}>
+            {flameState === 'EMBER' && (
+              <p className="text-sm mt-1" style={{ color: colors.orange }}>
                 ⚠ EMBER — Apply today to rekindle
-              </div>
+              </p>
             )}
-            {isExtinguished && (
-              <div className="text-sm mt-1" style={{ color: colors.fg4 }}>
-                💀 EXTINGUISHED — The fire has gone cold...
-              </div>
+            {flameState === 'EXTINGUISHED' && (
+              <p className="text-sm mt-1" style={{ color: colors.fg4 }}>
+                {isRecentlyExhausted
+                  ? "The embers still warm..."
+                  : "The fire has gone cold..."}
+              </p>
             )}
-            {neverLit && (
-              <div className="text-sm mt-1" style={{ color: colors.fg4 }}>
+            {flameState === 'COLD' && (
+              <p className="text-sm mt-1" style={{ color: colors.fg4 }}>
                 ❄️ COLD — Awaiting the first spark...
-              </div>
+              </p>
             )}
           </div>
         </div>
 
         {/* Stage name and message */}
-        {!neverLit && !isExtinguished && (
+        {flameState === 'BURNING' && (
           <>
             <div className="text-center mt-4">
               <div className="text-sm font-semibold" style={{ color: colors.fg4 }}>
