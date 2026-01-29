@@ -4,6 +4,7 @@ import { listUsers, updateUser, getAdminStats, deleteUser } from '../lib/admin';
 import type { User, AdminStats } from '../lib/admin';
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
+import CreateUserModal from '../components/CreateUserModal';
 
 export default function Admin() {
   const { user } = useAuth();
@@ -220,6 +221,12 @@ export default function Admin() {
           </>
         )}
       </div>
+
+      <CreateUserModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={loadData}
+      />
     </Layout>
   );
 }
