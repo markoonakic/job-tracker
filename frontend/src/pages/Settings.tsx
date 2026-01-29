@@ -442,7 +442,7 @@ export default function Settings() {
               <button
                 onClick={handleExportCSV}
                 disabled={exporting}
-                className="px-4 py-2 bg-bg1 text-fg1 rounded hover:bg-bg2 hover:text-fg0 disabled:opacity-50 transition-all duration-200 cursor-pointer"
+                className="px-4 py-2 bg-aqua text-bg0 rounded font-medium hover:bg-aqua-bright disabled:opacity-50 transition-all duration-200 cursor-pointer"
               >
                 {exporting ? 'Exporting...' : 'Export CSV'}
               </button>
