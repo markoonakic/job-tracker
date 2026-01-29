@@ -323,7 +323,7 @@ export default function Settings() {
                         value={editStatusName}
                         onChange={(e) => setEditStatusName(e.target.value)}
                         placeholder="Status name"
-                        className="flex-1 px-3 py-2 bg-bg1 border border-transparent rounded text-fg1 placeholder-gray focus:outline-none focus:border-aqua-bright transition-all duration-200"
+                        className="flex-1 px-3 py-2 bg-tertiary border border-transparent rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200"
                       />
                       <input
                         type="color"
@@ -353,7 +353,7 @@ export default function Settings() {
                       value={newStatusName}
                       onChange={(e) => setNewStatusName(e.target.value)}
                       placeholder="New status name"
-                      className="flex-1 px-3 py-2 bg-bg1 border border-transparent rounded text-fg1 placeholder-gray focus:outline-none focus:border-aqua-bright transition-all duration-200"
+                      className="flex-1 px-3 py-2 bg-tertiary border border-transparent rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200"
                     />
                     <input
                       type="color"
@@ -411,7 +411,7 @@ export default function Settings() {
                     value={newRoundTypeName}
                     onChange={(e) => setNewRoundTypeName(e.target.value)}
                     placeholder="New round type name"
-                    className="flex-1 px-3 py-2 bg-bg1 border border-transparent rounded text-fg1 placeholder-gray focus:outline-none focus:border-aqua-bright transition-all duration-200"
+                    className="flex-1 px-3 py-2 bg-tertiary border border-transparent rounded text-primary placeholder-muted focus:outline-none focus:border-accent-aqua transition-colors duration-200"
                   />
                   <button
                     type="submit"
