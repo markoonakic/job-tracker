@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Sankey, Tooltip, Layer, Rectangle } from 'recharts';
 import { getSankeyData } from '../lib/analytics';
 import type { SankeyData } from '../lib/analytics';
+import { colors } from '@/lib/theme';
 import Loading from './Loading';
 import EmptyState from './EmptyState';
 
@@ -26,13 +27,13 @@ function SankeyNode({ x, y, width, height, index, payload }: {
 }) {
   // Use node color if available, otherwise fall back to preset colors
   const fallbackColors = [
-    'var(--accent-aqua)',
-    'var(--accent-green)',
-    'var(--accent-yellow)',
-    'var(--accent-orange)',
-    'var(--accent-red)',
-    'var(--accent-purple)',
-    'var(--accent-blue)',
+    colors.aqua,
+    colors.green,
+    colors.yellow,
+    colors.orange,
+    colors.red,
+    colors.purple,
+    colors.blue,
   ];
   const color = payload.color || fallbackColors[index % fallbackColors.length];
 
@@ -126,18 +127,18 @@ export default function SankeyChart() {
       >
         <Tooltip
           contentStyle={{
-            backgroundColor: '#665c54',
-            border: '1px solid #8ec07c',
+            backgroundColor: colors.bg3,
+            border: `1px solid ${colors.aquaBright}`,
             borderRadius: '4px',
-            color: '#fbf1c7',
+            color: colors.fg0,
             padding: '0.5rem 0.75rem',
           }}
           labelStyle={{
-            color: '#fbf1c7',
+            color: colors.fg0,
             fontWeight: 600,
           }}
           itemStyle={{
-            color: '#fbf1c7',
+            color: colors.fg0,
           }}
         />
       </Sankey>
