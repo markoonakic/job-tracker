@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.core.deps import get_current_admin
+from app.core.security import get_password_hash
 from app.models import Application, ApplicationStatus, RoundType, User
 from app.schemas.admin import (
     AdminRoundTypeUpdate,
@@ -66,6 +67,13 @@ async def update_user(
         raise HTTPException(status_code=404, detail="User not found")
 
     update_data = data.model_dump(exclude_unset=True)
+
+    # Handle password separately (needs hashing)
+    if 'password' in update_data and update_data['password']:
+        user.password_hash = get_password_hash(update_data['password'])
+        del update_data['password']  # Remove so setattr doesn't try to set it
+
+    # Update other fields normally
     for key, value in update_data.items():
         setattr(user, key, value)
 
