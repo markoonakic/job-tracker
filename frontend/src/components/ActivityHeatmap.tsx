@@ -200,7 +200,7 @@ export default function ActivityHeatmap() {
                   {week.map((cell, dayIndex) => (
                     <div
                       key={`${weekIndex}-${dayIndex}`}
-                      className="rounded-sm cursor-pointer transition-opacity hover:opacity-80"
+                      className="rounded-sm cursor-pointer transition-opacity opacity-60 hover:opacity-100"
                       style={{
                         width: cellSize,
                         height: cellSize,
