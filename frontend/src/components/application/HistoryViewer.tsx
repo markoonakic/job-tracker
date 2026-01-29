@@ -30,7 +30,7 @@ export default function HistoryViewer({ applicationId }: Props) {
   }
 
   function handleDelete(historyId: string) {
-    if (!confirm('Remove this history entry?')) return;
+    if (!confirm('Delete this history entry?')) return;
     deleteMutation.mutate(historyId);
   }
 
@@ -135,10 +135,10 @@ export default function HistoryViewer({ applicationId }: Props) {
                     onClick={() => handleDelete(entry.id)}
                     disabled={deleteMutation.isPending}
                     className="px-3 py-1.5 bg-bg1 text-red rounded hover:bg-bg2 hover:text-red-bright transition-all duration-200 flex items-center gap-1.5 text-sm cursor-pointer disabled:opacity-50 flex-shrink-0"
-                    title="Remove"
+                    title="Delete"
                   >
                     <i className="bi-trash" />
-                    Remove
+                    Delete
                   </button>
                 )}
               </div>

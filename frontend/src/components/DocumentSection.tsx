@@ -66,7 +66,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
   }
 
   async function handleDelete(type: 'cv' | 'cover-letter') {
-    if (!confirm(`Remove this ${type}?`)) return;
+    if (!confirm(`Delete this ${type}?`)) return;
     setError('');
     try {
       let updated: Application;
@@ -176,7 +176,7 @@ export default function DocumentSection({ application, onUpdate }: Props) {
                 className="px-3 py-1.5 bg-bg1 text-red rounded hover:bg-bg2 hover:text-red-bright disabled:opacity-50 transition-all duration-200 flex items-center gap-1.5 text-sm cursor-pointer"
               >
                 <i className="bi-trash"></i>
-                Remove
+                Delete
               </button>
             </div>
           </div>
