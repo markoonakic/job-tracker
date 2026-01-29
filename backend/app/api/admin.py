@@ -13,6 +13,7 @@ from app.schemas.admin import (
     AdminRoundTypeUpdate,
     AdminStatsResponse,
     AdminStatusUpdate,
+    AdminUserCreate,
     AdminUserResponse,
     AdminUserUpdate,
 )
@@ -91,6 +92,41 @@ async def update_user(
         is_active=user.is_active,
         created_at=user.created_at,
         application_count=app_count,
+    )
+
+
+@router.post("/users", response_model=AdminUserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user(
+    user_data: AdminUserCreate,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    # Check if email already exists
+    result = await db.execute(select(User).where(User.email == user_data.email))
+    if result.scalars().first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered",
+        )
+
+    # Create new user with hashed password
+    user = User(
+        email=user_data.email,
+        password_hash=get_password_hash(user_data.password),
+        is_admin=user_data.is_admin,
+        is_active=user_data.is_active,
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+
+    return AdminUserResponse(
+        id=user.id,
+        email=user.email,
+        is_admin=user.is_admin,
+        is_active=user.is_active,
+        created_at=user.created_at,
+        application_count=0,
     )
 
 
