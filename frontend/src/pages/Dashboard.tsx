@@ -47,7 +47,9 @@ export default function Dashboard() {
           <>
             <h1 className="text-2xl font-bold text-primary mb-6">Dashboard</h1>
 
-            <FlameEmblem />
+            <div className="border border-tertiary rounded-lg mb-6">
+              <FlameEmblem />
+            </div>
 
             <div className="bg-secondary rounded-lg border border-tertiary p-6 mb-6">
               <KPICards />
@@ -56,7 +58,7 @@ export default function Dashboard() {
             <QuickActions />
             <NeedsAttention />
 
-            <div className="bg-secondary rounded-lg p-6">
+            <div className="bg-secondary rounded-lg border border-tertiary p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-primary">Activity Overview</h2>
               </div>
