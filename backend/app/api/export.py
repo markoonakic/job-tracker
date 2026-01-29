@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models import Application, Round, User
+from app.models.round_type import RoundType
 
 router = APIRouter(prefix="/api/export", tags=["export"])
 
@@ -78,7 +79,11 @@ async def export_csv(
     result = await db.execute(
         select(Application)
         .where(Application.user_id == user.id)
-        .options(selectinload(Application.status))
+        .options(
+            selectinload(Application.status),
+            selectinload(Application.rounds).selectinload(Round.round_type),
+            selectinload(Application.rounds).selectinload(Round.media),
+        )
         .order_by(Application.applied_at.desc())
     )
     applications = result.scalars().all()
@@ -92,17 +97,52 @@ async def export_csv(
         "Applied Date",
         "Job URL",
         "CV Path",
+        "Round Type",
+        "Round Status",
+        "Round Outcome",
+        "Round Notes",
+        "Round Media",
     ])
 
     for app in applications:
-        writer.writerow([
-            app.company,
-            app.job_title,
-            app.status.name,
-            str(app.applied_at),
-            app.job_url or "",
-            app.cv_path or "",
-        ])
+        if not app.rounds:
+            # Write a row for the application with no rounds
+            writer.writerow([
+                app.company,
+                app.job_title,
+                app.status.name,
+                str(app.applied_at),
+                app.job_url or "",
+                app.cv_path or "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ])
+        else:
+            for round in app.rounds:
+                # Build media info string
+                media_info = "; ".join([
+                    f"{m.media_type}:{m.file_path}" for m in round.media
+                ]) if round.media else ""
+
+                # Determine round status
+                round_status = "Completed" if round.completed_at else "Scheduled" if round.scheduled_at else "Pending"
+
+                writer.writerow([
+                    app.company,
+                    app.job_title,
+                    app.status.name,
+                    str(app.applied_at),
+                    app.job_url or "",
+                    app.cv_path or "",
+                    round.round_type.name if round.round_type else "",
+                    round_status,
+                    round.outcome or "",
+                    round.notes_summary or "",
+                    media_info,
+                ])
 
     output.seek(0)
     return StreamingResponse(
