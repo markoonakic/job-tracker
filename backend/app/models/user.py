@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy import Boolean, Date, DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -25,6 +25,7 @@ class User(Base):
     last_activity_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     ember_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     streak_start_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    streak_exhausted_at: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
 
     applications = relationship("Application", back_populates="user", cascade="all, delete-orphan")
     custom_statuses = relationship("ApplicationStatus", back_populates="user", cascade="all, delete-orphan")
