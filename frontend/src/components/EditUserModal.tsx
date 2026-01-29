@@ -118,6 +118,7 @@ export default function EditUserModal({ user, onClose, onSuccess, currentUserId 
                 checked={isAdmin}
                 onChange={(e) => setIsAdmin(e.target.checked)}
                 disabled={isCurrentUser}
+                autoFocus
                 className="w-4 h-4 rounded border-tertiary"
               />
               <span className="text-sm text-primary">Admin</span>
