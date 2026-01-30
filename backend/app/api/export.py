@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models import Application, ApplicationStatusHistory, Round, User
+from app.models.status import ApplicationStatus
 from app.models.round_type import RoundType
 
 router = APIRouter(prefix="/api/export", tags=["export"])
@@ -46,8 +47,40 @@ async def export_json(
     )
     applications = result.scalars().all()
 
+    # Fetch user's custom statuses
+    result_statuses = await db.execute(
+        select(ApplicationStatus)
+        .where(ApplicationStatus.user_id == user.id)
+        .order_by(ApplicationStatus.order)
+    )
+    custom_statuses = result_statuses.scalars().all()
+
+    # Fetch user's custom round types
+    result_types = await db.execute(
+        select(RoundType)
+        .where(RoundType.user_id == user.id)
+        .order_by(RoundType.id)
+    )
+    custom_round_types = result_types.scalars().all()
+
     data = {
-        "user": {"id": user.id, "email": user.email},
+        "user": {"id": str(user.id), "email": user.email},
+        "custom_statuses": [
+            {
+                "name": s.name,
+                "color": s.color,
+                "is_default": s.is_default,
+                "order": s.order,
+            }
+            for s in custom_statuses
+        ],
+        "custom_round_types": [
+            {
+                "name": rt.name,
+                "is_default": rt.is_default,
+            }
+            for rt in custom_round_types
+        ],
         "applications": [
             {
                 "id": app.id,
