@@ -863,3 +863,52 @@ class TestExportIncludesDefaults:
         assert "User Custom" in status_names, "Export should include user-specific statuses"
         assert "System Round" in round_type_names, "Export should include default round types"
         assert "User Round" in round_type_names, "Export should include user-specific round types"
+
+
+class TestZIPExport:
+    """Test ZIP export functionality."""
+
+    async def test_zip_export_requires_auth(self, client: AsyncClient):
+        """Test ZIP export requires authentication."""
+        response = await client.get("/api/export/zip")
+        assert response.status_code == 401
+
+    async def test_zip_export_includes_data_json(
+        self, client: AsyncClient, auth_headers: dict[str, str]
+    ):
+        """Test ZIP export contains data.json file."""
+        response = await client.get(
+            "/api/export/zip",
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+
+        # Verify it's a valid ZIP
+        assert response.headers["content-type"] == "application/zip"
+
+        # Check ZIP contents
+        import zipfile
+        import io
+
+        zip_bytes = await response.aread()
+        with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+            assert "data.json" in zf.namelist()
+
+            # Verify JSON structure
+            data = json.loads(zf.read("data.json"))
+            assert "user" in data
+            assert "applications" in data
+
+    async def test_zip_export_filename_includes_timestamp(
+        self, client: AsyncClient, auth_headers: dict[str, str]
+    ):
+        """Test ZIP filename has timestamp."""
+        response = await client.get(
+            "/api/export/zip",
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+
+        content_disposition = response.headers.get("content-disposition", "")
+        assert "job-tracker-export-" in content_disposition
+        assert ".zip" in content_disposition

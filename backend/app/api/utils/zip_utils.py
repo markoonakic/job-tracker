@@ -1,13 +1,27 @@
 import aiofiles
-import asyncio
 import json
+import os
+import tempfile
 import zipfile
 from pathlib import Path
-from typing import Dict, List
-from fastapi import UploadFile
 
-MAX_UNCOMPRESSED_SIZE = 2 * 1024 * 1024 * 1024  # 2GB
-MAX_COMPRESSED_RATIO = 10
+
+def is_path_safe(base_path: str, file_path: str) -> bool:
+    """Validate a file path is within the base directory to prevent path traversal."""
+    try:
+        # Resolve both paths
+        base = Path(base_path).resolve()
+        target = Path(file_path).resolve()
+
+        # Check if target is within base directory
+        try:
+            target.relative_to(base)
+        except ValueError:
+            return False
+
+        return True
+    except Exception:
+        return False
 
 
 async def create_zip_export(
@@ -16,11 +30,11 @@ async def create_zip_export(
     base_upload_path: str
 ) -> bytes:
     """Create a ZIP file containing JSON data and all media files."""
-    import tempfile
-    import os
-
     # Parse JSON to get file paths
     data = json.loads(json_data)
+
+    # Resolve the base upload path once
+    base_path = Path(base_upload_path).resolve()
 
     # Create temp directory for ZIP
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -36,14 +50,16 @@ async def create_zip_export(
             for app in data.get('applications', []):
                 if app.get('cv_path'):
                     cv_path = Path(app['cv_path'])
-                    if cv_path.exists():
+                    # Validate path is safe before using it
+                    if cv_path.exists() and is_path_safe(str(base_path), str(cv_path)):
                         file_paths.add((cv_path, f'files/applications/cv_{app["id"]}{cv_path.suffix}'))
 
                 for round_data in app.get('rounds', []):
                     for media in round_data.get('media', []):
                         if media.get('path'):
                             media_path = Path(media['path'])
-                            if media_path.exists():
+                            # Validate path is safe before using it
+                            if media_path.exists() and is_path_safe(str(base_path), str(media_path)):
                                 file_paths.add((media_path, f'files/rounds/{round_data["id"]}_{media["type"]}{media_path.suffix}'))
 
             # Add files to ZIP
