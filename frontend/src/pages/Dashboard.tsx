@@ -8,17 +8,28 @@ import FlameEmblem from '../components/dashboard/FlameEmblem';
 import KPICards from '../components/dashboard/KPICards';
 import QuickActions from '../components/dashboard/QuickActions';
 import NeedsAttention from '../components/dashboard/NeedsAttention';
+import ImportModal from '../components/ImportModal';
 
 export default function Dashboard() {
   useAuth();
   const [totalApplications, setTotalApplications] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showImportPrompt, setShowImportPrompt] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     async function loadTotalApplications() {
       try {
         const data = await listApplications({ page: 1, per_page: 1 });
         setTotalApplications(data.total);
+
+        // Show import prompt if no applications and user hasn't dismissed it
+        if (data.total === 0) {
+          const hasSeenPrompt = localStorage.getItem('import-prompt-seen');
+          if (!hasSeenPrompt) {
+            setShowImportPrompt(true);
+          }
+        }
       } catch {
         console.error('Failed to load total applications');
       } finally {
@@ -31,9 +42,52 @@ export default function Dashboard() {
 
   if (loading) return null;
 
+  const handleDismissPrompt = () => {
+    localStorage.setItem('import-prompt-seen', 'true');
+    setShowImportPrompt(false);
+  };
+
+  const handleOpenImportModal = () => {
+    setShowImportPrompt(false);
+    setShowImportModal(true);
+  };
+
+  const handleCloseImportModal = () => {
+    setShowImportModal(false);
+  };
+
+  const handleImportSuccess = () => {
+    setShowImportModal(false);
+    window.location.reload();
+  };
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {showImportPrompt && totalApplications === 0 && (
+          <div className="bg-aqua/20 border border-aqua text-primary px-6 py-4 rounded-lg mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold mb-1">Welcome! 👋</h3>
+                <p className="text-sm">Do you have data from a previous export? You can import it to get started.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDismissPrompt}
+                  className="px-4 py-2 bg-tertiary text-primary rounded font-medium hover:bg-bg2 transition-colors"
+                >
+                  Skip
+                </button>
+                <button
+                  onClick={handleOpenImportModal}
+                  className="px-4 py-2 bg-aqua text-bg0 rounded font-medium hover:bg-aqua-bright transition-colors"
+                >
+                  Import Data
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {totalApplications === 0 ? (
           <EmptyState
             message="Welcome! Add your first job application to get started."
@@ -63,6 +117,11 @@ export default function Dashboard() {
           </>
         )}
       </div>
+      <ImportModal
+        isOpen={showImportModal}
+        onClose={handleCloseImportModal}
+        onSuccess={handleImportSuccess}
+      />
     </Layout>
   );
 }
