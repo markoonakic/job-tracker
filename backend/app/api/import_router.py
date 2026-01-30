@@ -15,8 +15,9 @@ import zipfile
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy import select
+from typing import Dict
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -62,6 +63,46 @@ def secure_delete(file_path: str):
             os.remove(file_path)
         except Exception:
             pass
+
+
+class ImportProgress:
+    """Track import progress for SSE streaming."""
+
+    _active_imports: Dict[str, dict] = {}
+
+    @classmethod
+    def get_progress(cls, import_id: str) -> dict:
+        return cls._active_imports.get(import_id, {"status": "unknown"})
+
+    @classmethod
+    def create(cls, import_id: str) -> dict:
+        progress = {
+            "status": "pending",
+            "stage": "initializing",
+            "percent": 0,
+            "message": "Starting import..."
+        }
+        cls._active_imports[import_id] = progress
+        return progress
+
+    @classmethod
+    def update(cls, import_id: str, **updates):
+        if import_id in cls._active_imports:
+            cls._active_imports[import_id].update(updates)
+
+    @classmethod
+    def complete(cls, import_id: str, success: bool, result: dict = None):
+        if import_id in cls._active_imports:
+            cls._active_imports[import_id] = {
+                "status": "complete",
+                "success": success,
+                "result": result or {}
+            }
+
+    @classmethod
+    def delete(cls, import_id: str):
+        if import_id in cls._active_imports:
+            del cls._active_imports[import_id]
 
 
 @router.post("/validate")
@@ -159,3 +200,40 @@ async def validate_import(
     finally:
         if temp_path and os.path.exists(temp_path):
             secure_delete(temp_path)
+
+
+@router.get("/progress/{import_id}")
+async def import_progress(import_id: str):
+    """Server-Sent Events endpoint for import progress."""
+
+    async def event_stream():
+        progress = ImportProgress.get_progress(import_id)
+
+        # Send current state
+        yield f"event: progress\ndata: {json.dumps(progress)}\n\n"
+
+        if progress.get("status") == "complete":
+            return
+
+        # Poll for updates
+        last_status = progress.get("status")
+        for _ in range(300):  # 5 minutes max
+            await asyncio.sleep(1)
+            progress = ImportProgress.get_progress(import_id)
+
+            if progress.get("status") != last_status:
+                yield f"event: progress\ndata: {json.dumps(progress)}\n\n"
+                last_status = progress.get("status")
+
+                if progress.get("status") == "complete":
+                    ImportProgress.delete(import_id)
+                    return
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
