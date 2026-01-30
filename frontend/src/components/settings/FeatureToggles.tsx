@@ -42,7 +42,8 @@ export default function FeatureToggles() {
   });
 
   function handleToggle(key: keyof UserPreferences) {
-    const currentValue = preferences?.[key] ?? true;
+    const freshData = queryClient.getQueryData(['user-preferences']) as UserPreferences | undefined;
+    const currentValue = freshData?.[key] ?? true;
     updateMutation.mutate({ [key]: !currentValue });
   }
 

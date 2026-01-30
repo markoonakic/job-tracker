@@ -293,13 +293,15 @@ export default function Settings() {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => startEditStatus(status)}
-                          className="px-3 py-1.5 bg-secondary text-fg1 text-xs rounded hover:bg-tertiary hover:text-fg0 transition-colors duration-200 ease-out flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <i className="bi-pencil text-xs"></i>
-                          Edit
-                        </button>
+                        {!status.is_default && (
+                          <button
+                            onClick={() => startEditStatus(status)}
+                            className="px-3 py-1.5 bg-secondary text-fg1 text-xs rounded hover:bg-tertiary hover:text-fg0 transition-colors duration-200 ease-out flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <i className="bi-pencil text-xs"></i>
+                            Edit
+                          </button>
+                        )}
                         {!status.is_default && (
                           <button
                             onClick={() => handleDeleteStatus(status)}
