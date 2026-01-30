@@ -737,3 +737,129 @@ class TestExportHeaders:
 
         assert response.status_code == 200
         assert response.headers["content-type"] == "text/csv; charset=utf-8"
+
+
+class TestExportIncludesDefaults:
+    """Test that export includes default statuses and round types."""
+
+    async def test_json_export_includes_default_statuses(
+        self,
+        db: AsyncSession,
+        client: AsyncClient,
+        auth_headers: dict[str, str],
+    ):
+        """Test that JSON export includes default statuses (user_id=None)."""
+        # Create a default status (user_id=None, is_default=True)
+        default_status = ApplicationStatus(
+            name="Default Status",
+            color="#ff0000",
+            is_default=True,
+            user_id=None,
+            order=999,
+        )
+        db.add(default_status)
+        await db.commit()
+
+        # Create a user-specific status
+        user_status = ApplicationStatus(
+            name="User Status",
+            color="#00ff00",
+            is_default=False,
+            user_id=auth_headers["Authorization"].split(" ")[1].split("-")[0],  # Extract user ID from token
+            order=1000,
+        )
+        # Note: We can't easily get the user ID from the token, so we'll skip this part
+        # and just verify the default status is included
+
+        response = await client.get("/api/export/json", headers=auth_headers)
+        assert response.status_code == 200
+
+        data = response.json()
+        status_names = [s["name"] for s in data.get("custom_statuses", [])]
+
+        # Should include the default status
+        assert "Default Status" in status_names, "Export should include default statuses with user_id=None"
+
+    async def test_json_export_includes_default_round_types(
+        self,
+        db: AsyncSession,
+        client: AsyncClient,
+        auth_headers: dict[str, str],
+    ):
+        """Test that JSON export includes default round types (user_id=None)."""
+        # Create a default round type (user_id=None, is_default=True)
+        default_round_type = RoundType(
+            name="Default Round",
+            is_default=True,
+            user_id=None,
+        )
+        db.add(default_round_type)
+        await db.commit()
+
+        response = await client.get("/api/export/json", headers=auth_headers)
+        assert response.status_code == 200
+
+        data = response.json()
+        round_type_names = [rt["name"] for rt in data.get("custom_round_types", [])]
+
+        # Should include the default round type
+        assert "Default Round" in round_type_names, "Export should include default round types with user_id=None"
+
+    async def test_json_export_includes_both_default_and_user_entities(
+        self,
+        db: AsyncSession,
+        client: AsyncClient,
+        test_user: User,
+        auth_headers: dict[str, str],
+    ):
+        """Test that JSON export includes both default and user-specific entities."""
+        # Create default status
+        default_status = ApplicationStatus(
+            name="System Default",
+            color="#0000ff",
+            is_default=True,
+            user_id=None,
+            order=1,
+        )
+        db.add(default_status)
+
+        # Create user-specific status
+        user_status = ApplicationStatus(
+            name="User Custom",
+            color="#00ff00",
+            is_default=False,
+            user_id=test_user.id,
+            order=2,
+        )
+        db.add(user_status)
+
+        # Create default round type
+        default_round_type = RoundType(
+            name="System Round",
+            is_default=True,
+            user_id=None,
+        )
+        db.add(default_round_type)
+
+        # Create user-specific round type
+        user_round_type = RoundType(
+            name="User Round",
+            is_default=False,
+            user_id=test_user.id,
+        )
+        db.add(user_round_type)
+
+        await db.commit()
+
+        response = await client.get("/api/export/json", headers=auth_headers)
+        assert response.status_code == 200
+
+        data = response.json()
+        status_names = [s["name"] for s in data.get("custom_statuses", [])]
+        round_type_names = [rt["name"] for rt in data.get("custom_round_types", [])]
+
+        # Should include both default and user-specific entities
+        assert "System Default" in status_names, "Export should include default statuses"
+        assert "User Custom" in status_names, "Export should include user-specific statuses"
+        assert "System Round" in round_type_names, "Export should include default round types"
+        assert "User Round" in round_type_names, "Export should include user-specific round types"

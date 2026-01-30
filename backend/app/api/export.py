@@ -4,7 +4,7 @@ import json
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -47,18 +47,24 @@ async def export_json(
     )
     applications = result.scalars().all()
 
-    # Fetch user's custom statuses
+    # Fetch ALL statuses (both default and user-specific)
     result_statuses = await db.execute(
         select(ApplicationStatus)
-        .where(ApplicationStatus.user_id == user.id)
+        .where(
+            (ApplicationStatus.user_id == user.id) |
+            (ApplicationStatus.is_default == True)
+        )
         .order_by(ApplicationStatus.order)
     )
     custom_statuses = result_statuses.scalars().all()
 
-    # Fetch user's custom round types
+    # Fetch ALL round types (both default and user-specific)
     result_types = await db.execute(
         select(RoundType)
-        .where(RoundType.user_id == user.id)
+        .where(
+            (RoundType.user_id == user.id) |
+            (RoundType.is_default == True)
+        )
         .order_by(RoundType.id)
     )
     custom_round_types = result_types.scalars().all()
