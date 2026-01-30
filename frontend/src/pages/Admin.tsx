@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { listUsers, updateUser, getAdminStats, deleteUser } from '../lib/admin';
+import { listUsers, getAdminStats, deleteUser } from '../lib/admin';
 import type { User, AdminStats } from '../lib/admin';
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
@@ -98,15 +98,13 @@ export default function Admin() {
                 </button>
               </div>
 
-              <div className="bg-secondary rounded-lg p-4 mb-6">
-                <input
-                  type="text"
-                  placeholder="Search by email..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-primary placeholder-muted focus:outline-none focus:border-aqua-bright transition-colors duration-200 ease-out"
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="Search by email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 bg-tertiary rounded text-primary placeholder-muted focus:outline-none focus:border-aqua-bright transition-colors duration-200 ease-out"
+              />
 
               <div className="bg-secondary rounded-lg overflow-hidden">
                 <table className="w-full border-collapse">
@@ -120,8 +118,8 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.map((u) => (
-                      <tr key={u.id} className="border-b border-tertiary hover:bg-tertiary transition-colors duration-200">
+                    {filteredUsers.map((u, index) => (
+                      <tr key={u.id} className={`${index === filteredUsers.length - 1 ? '' : 'border-b border-tertiary'} hover:bg-tertiary transition-colors duration-200`}>
                         <td className="py-3 px-4 text-sm text-primary">{u.email}</td>
                         <td className="py-3 px-4 text-sm text-secondary">{formatDate(u.created_at)}</td>
                         <td className="py-3 px-4 text-sm text-center">

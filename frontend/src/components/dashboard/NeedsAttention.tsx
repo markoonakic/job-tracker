@@ -34,7 +34,7 @@ function AttentionSection({
 
   if (items.length === 0) {
     return (
-      <div className="bg-secondary rounded-lg p-6 border border-tertiary">
+      <div className="bg-secondary rounded-lg p-6">
         <div className="flex items-center gap-2 mb-4">
           <i className={`bi ${icon} ${iconColor}`}></i>
           <h3 className="text-lg font-semibold text-fg1">{title}</h3>
@@ -114,14 +114,14 @@ export default function NeedsAttention() {
 
   if (error || !data) {
     return (
-      <div className="bg-secondary rounded-lg p-6 border border-tertiary">
+      <div className="bg-secondary rounded-lg p-6">
         <p className="text-red">Failed to load items needing attention</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <AttentionSection
         title="Follow-ups"
         items={data.follow_ups}

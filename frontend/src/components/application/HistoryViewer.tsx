@@ -161,7 +161,6 @@ export default function HistoryViewer({ applicationId }: Props) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         history={history || []}
-        applicationId={applicationId}
         isEditing={isEditing}
         onDelete={handleDelete}
         deleteIsPending={deleteMutation.isPending}

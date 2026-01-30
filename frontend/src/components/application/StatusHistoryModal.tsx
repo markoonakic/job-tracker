@@ -5,7 +5,6 @@ interface StatusHistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   history: ApplicationStatusHistory[];
-  applicationId: string;
   isEditing: boolean;
   onDelete: (historyId: string) => void;
   deleteIsPending: boolean;
@@ -19,7 +18,6 @@ export default function StatusHistoryModal({
   isOpen,
   onClose,
   history,
-  applicationId,
   isEditing,
   onDelete,
   deleteIsPending,

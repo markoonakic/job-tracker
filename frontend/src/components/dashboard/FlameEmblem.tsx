@@ -65,9 +65,11 @@ export default function FlameEmblem() {
   if (isLoading) {
     return (
       <div className="bg-secondary p-6 mb-6">
-        <div className="animate-pulse">
-          <div className="h-20 bg-tertiary rounded mb-4"></div>
-          <div className="h-4 bg-tertiary rounded w-48"></div>
+        <div className="flex flex-col items-center justify-center">
+          <div className="animate-pulse">
+            <div className="h-20 bg-tertiary rounded mb-4"></div>
+            <div className="h-4 bg-tertiary rounded w-48"></div>
+          </div>
         </div>
       </div>
     );
@@ -92,11 +94,11 @@ export default function FlameEmblem() {
 
   return (
     <div className="bg-secondary p-6 mb-6">
-      <div className="flex flex-col items-center justify-center py-4">
+      <div className="flex flex-col items-center justify-center">
         {/* Emblem frame - Elden Ring inspired ornate border */}
         <div
           className={`
-            relative px-12 py-6 border-2 rounded-lg
+            relative px-12 py-4 border-2 rounded-lg
             ${flameState === 'COLD' ? 'border-tertiary' : 'border-fg1'}
             transition-all duration-300
           `}

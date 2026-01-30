@@ -46,7 +46,7 @@ export default function EditUserModal({ user, onClose, onSuccess, currentUserId 
     setError('');
 
     try {
-      await updateUser(user.id, {
+      await updateUser(user!.id, {
         is_admin: isAdmin,
         is_active: isActive,
         ...(password ? { password } : {}),
@@ -61,7 +61,7 @@ export default function EditUserModal({ user, onClose, onSuccess, currentUserId 
   }
 
   async function handleDelete() {
-    if (!confirm(`Delete user "${user.email}"? This action cannot be undone.`)) {
+    if (!confirm(`Delete user "${user!.email}"? This action cannot be undone.`)) {
       return;
     }
 
@@ -69,7 +69,7 @@ export default function EditUserModal({ user, onClose, onSuccess, currentUserId 
     setError('');
 
     try {
-      await deleteUser(user.id);
+      await deleteUser(user!.id);
       onSuccess();
       onClose();
     } catch {
@@ -152,7 +152,7 @@ export default function EditUserModal({ user, onClose, onSuccess, currentUserId 
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-tertiary border border-muted rounded text-fg1 placeholder-muted focus:outline-none focus:border-aqua-bright transition-colors duration-200 ease-out"
+              className="w-full px-3 py-2 bg-tertiary rounded text-fg1 placeholder-muted focus:outline-none focus:border-aqua-bright transition-colors duration-200 ease-out"
               placeholder="Leave blank to keep current password"
               minLength={8}
             />

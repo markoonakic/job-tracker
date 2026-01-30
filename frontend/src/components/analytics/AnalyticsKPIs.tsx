@@ -20,7 +20,7 @@ interface KPICardProps {
 function KPICard({ title, value, unit, tooltip }: KPICardProps) {
   return (
     <div
-      className="bg-secondary rounded-lg p-4 border border-tertiary relative group"
+      className="bg-secondary rounded-lg p-4 relative group"
       title={tooltip}
     >
       <h3 className="text-xs font-semibold text-fg4 mb-1">{title}</h3>
@@ -62,7 +62,7 @@ export default function AnalyticsKPIs({ period }: AnalyticsKPIsProps) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="bg-secondary rounded-lg p-4 border border-tertiary animate-pulse">
+          <div key={i} className="bg-secondary rounded-lg p-4 animate-pulse">
             <div className="h-3 bg-tertiary rounded mb-2 w-20"></div>
             <div className="h-6 bg-tertiary rounded w-12"></div>
           </div>
@@ -74,7 +74,7 @@ export default function AnalyticsKPIs({ period }: AnalyticsKPIsProps) {
   if (error || !kpis) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="col-span-full bg-secondary rounded-lg p-4 border border-tertiary">
+        <div className="col-span-full bg-secondary rounded-lg p-4">
           <p className="text-red text-sm">Failed to load KPIs</p>
         </div>
       </div>
