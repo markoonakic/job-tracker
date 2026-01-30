@@ -2,9 +2,32 @@
 
 /* Tailwind v4 theme definition - must come immediately after @import */
 @theme {
-  /* Accent colors - bright */
-  --color-aqua-bright: #8ec07c;
+  /* Backgrounds */
+  --color-bg0: #282828;
+  --color-bg1: #3c3836;
+  --color-bg2: #504945;
+  --color-bg3: #665c54;
+  --color-bg4: #7c6f64;
+
+  /* Foregrounds */
+  --color-fg0: #fbf1c7;
+  --color-fg1: #ebdbb2;
+  --color-fg2: #d5c4a1;
+  --color-fg3: #bdae93;
+  --color-fg4: #a89984;
+  --color-gray: #928374;
+  --color-primary: #ebdbb2;
+  --color-secondary: #3c3836;
+  --color-tertiary: #504945;
+  --color-muted: #a89984;
+
+  /* Accent colors */
   --color-aqua: #689d6a;
+  --color-aqua-bright: #8ec07c;
+  --color-red: #cc241d;
+  --color-red-bright: #fb4934;
+  --color-green: #98971a;
+  --color-green-bright: #b8bb26;
 }
 
 /* Font Faces - CommitMonoFunky */
