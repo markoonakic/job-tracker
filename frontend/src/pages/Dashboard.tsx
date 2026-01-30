@@ -49,9 +49,7 @@ export default function Dashboard() {
 
             <FlameEmblem />
 
-            <div className="bg-secondary rounded-lg p-6 mb-6">
-              <KPICards />
-            </div>
+            <KPICards />
 
             <QuickActions />
             <NeedsAttention />

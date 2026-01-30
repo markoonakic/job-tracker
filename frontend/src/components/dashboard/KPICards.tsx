@@ -59,7 +59,7 @@ export default function KPICards() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-secondary rounded-lg p-6 border border-tertiary animate-pulse">
+          <div key={i} className="bg-secondary rounded-lg p-6 animate-pulse">
             <div className="h-4 bg-tertiary rounded mb-2 w-24"></div>
             <div className="h-8 bg-tertiary rounded w-16"></div>
           </div>
@@ -77,7 +77,7 @@ export default function KPICards() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <KPICard
         title="Last 7 Days"
         value={kpis.last_7_days}
