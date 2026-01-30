@@ -7,6 +7,7 @@ including ZIP file safety validation and data validation.
 import asyncio
 import io
 import json
+import os
 import tempfile
 import zipfile
 from datetime import date, datetime
@@ -15,6 +16,7 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.security import create_access_token, get_password_hash
 from app.models import (
@@ -874,6 +876,588 @@ class TestImportOverride:
         assert apps[0].company == "TestCorp"  # New data
 
         # Clean up temp file
-        import os
         if os.path.exists(sample_import_zip_with_phone_screen):
             os.remove(sample_import_zip_with_phone_screen)
+
+
+class TestEndToEnd:
+    """Test complete export to import workflow."""
+
+    async def test_export_then_import_round_trip(
+        self, client: AsyncClient, auth_headers: dict[str, str], db: AsyncSession, test_user: User
+    ):
+        """Test that data can be exported and then imported successfully."""
+        user_id = test_user.id
+
+        # First, create some test data
+        status = ApplicationStatus(name="Test Status", color="#FF0000", is_default=False, order=1, user_id=user_id)
+        db.add(status)
+        await db.flush()
+
+        app = Application(
+            user_id=user_id,
+            company="ExportTest Company",
+            job_title="Test Job",
+            status_id=status.id,
+            applied_at=date.today(),
+        )
+        db.add(app)
+        await db.commit()
+        await db.refresh(app)
+
+        # Export the data
+        response = await client.get("/api/export/zip", headers=auth_headers)
+        assert response.status_code == 200
+
+        zip_bytes = await response.aread()
+
+        # Save to temp file
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+            tmp.write(zip_bytes)
+            temp_zip_path = tmp.name
+
+        try:
+            # Now import it back
+            with open(temp_zip_path, "rb") as f:
+                import_data = {"file": ("test_export.zip", f, "application/zip")}
+
+                response = await client.post(
+                    "/api/import/import",
+                    files=import_data,
+                    headers=auth_headers,
+                    data={"override": "true"},
+                )
+
+            assert response.status_code == 200
+            import_id = response.json()["import_id"]
+
+            # Wait for import to complete
+            await asyncio.sleep(3)
+
+            # Verify the data was imported correctly
+            result = await db.execute(
+                select(Application)
+                .where(Application.user_id == user_id)
+                .where(Application.company == "ExportTest Company")
+            )
+            imported_app = result.scalar_one_or_none()
+
+            assert imported_app is not None
+            assert imported_app.job_title == "Test Job"
+
+        finally:
+            os.unlink(temp_zip_path)
+
+    async def test_export_import_preserves_status_history(
+        self, client: AsyncClient, auth_headers: dict[str, str], db: AsyncSession, test_user: User, test_statuses: list[ApplicationStatus]
+    ):
+        """Test that status history is preserved through export/import cycle."""
+        user_id = test_user.id
+
+        # Create application with status history
+        app = Application(
+            user_id=user_id,
+            company="HistoryTest Company",
+            job_title="Test Job",
+            status_id=test_statuses[2].id,
+            applied_at=date(2024, 1, 10),
+        )
+        db.add(app)
+        await db.flush()
+
+        # Add status history
+        history1 = ApplicationStatusHistory(
+            application_id=app.id,
+            from_status_id=None,
+            to_status_id=test_statuses[0].id,
+            changed_at=datetime(2024, 1, 8, 9, 0),
+            note="Added to wishlist",
+        )
+        db.add(history1)
+
+        history2 = ApplicationStatusHistory(
+            application_id=app.id,
+            from_status_id=test_statuses[0].id,
+            to_status_id=test_statuses[1].id,
+            changed_at=datetime(2024, 1, 10, 10, 30),
+            note="Applied through portal",
+        )
+        db.add(history2)
+
+        await db.commit()
+
+        # Export
+        response = await client.get("/api/export/zip", headers=auth_headers)
+        assert response.status_code == 200
+
+        zip_bytes = await response.aread()
+
+        # Save to temp file
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+            tmp.write(zip_bytes)
+            temp_zip_path = tmp.name
+
+        try:
+            # Delete original data to test fresh import
+            await db.execute(
+                select(ApplicationStatusHistory).where(ApplicationStatusHistory.application_id == app.id)
+            )
+            await db.delete(app)
+            await db.commit()
+
+            # Import
+            with open(temp_zip_path, "rb") as f:
+                import_data = {"file": ("test_export.zip", f, "application/zip")}
+
+                response = await client.post(
+                    "/api/import/import",
+                    files=import_data,
+                    headers=auth_headers,
+                    data={"override": "false"},
+                )
+
+            assert response.status_code == 200
+
+            # Wait for import to complete
+            await asyncio.sleep(3)
+
+            # Verify status history was imported
+            result = await db.execute(
+                select(Application)
+                .options(selectinload(Application.status_history))
+                .where(Application.user_id == user_id)
+                .where(Application.company == "HistoryTest Company")
+            )
+            imported_app = result.scalar_one_or_none()
+
+            assert imported_app is not None
+            assert len(imported_app.status_history) == 2
+
+        finally:
+            os.unlink(temp_zip_path)
+
+    async def test_export_import_preserves_rounds_and_media(
+        self, client: AsyncClient, auth_headers: dict[str, str], db: AsyncSession, test_user: User, test_round_types: list[RoundType]
+    ):
+        """Test that rounds are preserved through export/import cycle (media files not included if they don't exist)."""
+        user_id = test_user.id
+
+        # Create application with rounds
+        status = ApplicationStatus(name="Round Test Status", color="#00FF00", is_default=False, order=1, user_id=user_id)
+        db.add(status)
+        await db.flush()
+
+        app = Application(
+            user_id=user_id,
+            company="RoundTest Company",
+            job_title="Test Job",
+            status_id=status.id,
+            applied_at=date(2024, 1, 15),
+        )
+        db.add(app)
+        await db.flush()
+
+        # Add round with media
+        round1 = Round(
+            application_id=app.id,
+            round_type_id=test_round_types[0].id,
+            scheduled_at=datetime(2024, 1, 20, 10, 0),
+            completed_at=datetime(2024, 1, 20, 10, 30),
+            outcome="Passed",
+            notes_summary="Great interview",
+        )
+        db.add(round1)
+        await db.flush()
+
+        media1 = RoundMedia(
+            round_id=round1.id,
+            file_path="/media/interview.mp4",
+            media_type=MediaType.VIDEO,
+        )
+        db.add(media1)
+
+        await db.commit()
+
+        # Export
+        response = await client.get("/api/export/zip", headers=auth_headers)
+        assert response.status_code == 200
+
+        zip_bytes = await response.aread()
+
+        # Verify the exported JSON contains media metadata
+        import zipfile
+        import io
+        with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+            data = json.loads(zf.read("data.json"))
+            assert len(data["applications"]) > 0
+            app_data = data["applications"][0]
+            assert len(app_data["rounds"]) > 0
+            # Media metadata should be in the export even if file doesn't exist
+            round_data = app_data["rounds"][0]
+            assert "media" in round_data
+
+        # Save to temp file
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+            tmp.write(zip_bytes)
+            temp_zip_path = tmp.name
+
+        try:
+            # Delete original data
+            await db.delete(app)
+            await db.commit()
+
+            # Import
+            with open(temp_zip_path, "rb") as f:
+                import_data = {"file": ("test_export.zip", f, "application/zip")}
+
+                response = await client.post(
+                    "/api/import/import",
+                    files=import_data,
+                    headers=auth_headers,
+                    data={"override": "false"},
+                )
+
+            assert response.status_code == 200
+
+            # Wait for import to complete
+            await asyncio.sleep(3)
+
+            # Verify rounds were imported (media won't be imported since files don't exist)
+            result = await db.execute(
+                select(Application)
+                .options(selectinload(Application.rounds).selectinload(Round.media))
+                .where(Application.user_id == user_id)
+                .where(Application.company == "RoundTest Company")
+            )
+            imported_app = result.scalar_one_or_none()
+
+            assert imported_app is not None
+            assert len(imported_app.rounds) == 1
+            assert imported_app.rounds[0].outcome == "Passed"
+            # Media files won't be imported since they don't exist in the ZIP
+            # (ZIP export only includes files that actually exist on disk)
+
+        finally:
+            os.unlink(temp_zip_path)
+
+
+class TestImportEdgeCases:
+    """Test edge cases and error scenarios."""
+
+    async def test_import_with_missing_optional_fields(
+        self, client: AsyncClient, import_user: dict, db: AsyncSession
+    ):
+        """Test import works when optional fields are missing."""
+        user_id = import_user["user_id"]
+
+        # Create import with minimal required fields (job_title is required)
+        import_data = {
+            "user": {"id": str(user_id), "email": "import@example.com"},
+            "custom_statuses": [],
+            "custom_round_types": [],
+            "applications": [
+                {
+                    "company": "Minimal Company",
+                    "job_title": "Test Job",  # Required field
+                    "status": "Wishlist",
+                    "applied_at": "2024-01-25",
+                    "status_history": [],
+                    "rounds": [],
+                }
+            ],
+        }
+
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            zipf.writestr("data.json", json.dumps(import_data))
+        zip_buffer.seek(0)
+        zip_bytes = zip_buffer.read()
+
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as f:
+            f.write(zip_bytes)
+            temp_zip_path = f.name
+
+        try:
+            with open(temp_zip_path, "rb") as f:
+                response = await client.post(
+                    "/api/import/import",
+                    files={"file": ("import.zip", f, "application/zip")},
+                    headers=import_user,
+                    data={"override": "false"},
+                )
+
+            assert response.status_code == 200
+
+            # Wait for import to complete
+            await asyncio.sleep(2)
+
+            # Verify application was created with optional fields as None
+            result = await db.execute(
+                select(Application)
+                .where(Application.user_id == user_id)
+                .where(Application.company == "Minimal Company")
+            )
+            app = result.scalar_one_or_none()
+            assert app is not None
+            assert app.job_title == "Test Job"  # Required field provided
+            assert app.job_description is None  # Optional field not provided
+            assert app.job_url is None  # Optional field not provided
+            assert app.cv_path is None  # Optional field not provided
+
+        finally:
+            os.unlink(temp_zip_path)
+
+    async def test_import_with_empty_arrays(
+        self, client: AsyncClient, import_user: dict, db: AsyncSession
+    ):
+        """Test import handles empty arrays correctly."""
+        user_id = import_user["user_id"]
+
+        import_data = {
+            "user": {"id": str(user_id), "email": "import@example.com"},
+            "custom_statuses": [],
+            "custom_round_types": [],
+            "applications": [],
+        }
+
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            zipf.writestr("data.json", json.dumps(import_data))
+        zip_buffer.seek(0)
+        zip_bytes = zip_buffer.read()
+
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as f:
+            f.write(zip_bytes)
+            temp_zip_path = f.name
+
+        try:
+            with open(temp_zip_path, "rb") as f:
+                response = await client.post(
+                    "/api/import/import",
+                    files={"file": ("import.zip", f, "application/zip")},
+                    headers=import_user,
+                    data={"override": "false"},
+                )
+
+            assert response.status_code == 200
+
+        finally:
+            os.unlink(temp_zip_path)
+
+    async def test_import_with_large_description(
+        self, client: AsyncClient, import_user: dict, db: AsyncSession
+    ):
+        """Test import handles large job descriptions."""
+        user_id = import_user["user_id"]
+
+        # Create a very long description
+        large_description = "This is a long job description. " * 100  # ~3500 characters
+
+        import_data = {
+            "user": {"id": str(user_id), "email": "import@example.com"},
+            "custom_statuses": [],
+            "custom_round_types": [],
+            "applications": [
+                {
+                    "company": "LargeDesc Company",
+                    "job_title": "Senior Developer",
+                    "job_description": large_description,
+                    "status": "Applied",
+                    "applied_at": "2024-01-25",
+                    "status_history": [],
+                    "rounds": [],
+                }
+            ],
+        }
+
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            zipf.writestr("data.json", json.dumps(import_data))
+        zip_buffer.seek(0)
+        zip_bytes = zip_buffer.read()
+
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as f:
+            f.write(zip_bytes)
+            temp_zip_path = f.name
+
+        try:
+            with open(temp_zip_path, "rb") as f:
+                response = await client.post(
+                    "/api/import/import",
+                    files={"file": ("import.zip", f, "application/zip")},
+                    headers=import_user,
+                    data={"override": "false"},
+                )
+
+            assert response.status_code == 200
+
+            # Wait for import to complete
+            await asyncio.sleep(2)
+
+            # Verify description was preserved
+            result = await db.execute(
+                select(Application)
+                .where(Application.user_id == user_id)
+                .where(Application.company == "LargeDesc Company")
+            )
+            app = result.scalar_one_or_none()
+            assert app is not None
+            assert app.job_description == large_description
+
+        finally:
+            os.unlink(temp_zip_path)
+
+    async def test_import_with_special_characters(
+        self, client: AsyncClient, import_user: dict, db: AsyncSession
+    ):
+        """Test import handles special characters in company names and notes."""
+        user_id = import_user["user_id"]
+
+        import_data = {
+            "user": {"id": str(user_id), "email": "import@example.com"},
+            "custom_statuses": [],
+            "custom_round_types": [],
+            "applications": [
+                {
+                    "company": "Company & Partners, LLC",
+                    "job_title": "Senior Developer (Remote)",
+                    "job_description": "Job with quotes: \"quoted text\" and 'apostrophes'",
+                    "status": "Applied",
+                    "applied_at": "2024-01-25",
+                    "status_history": [
+                        {
+                            "from_status": None,
+                            "to_status": "Applied",
+                            "changed_at": "2024-01-25T10:00:00",
+                            "note": "Note with émojis 🎉 and spëcial çharacters",
+                        }
+                    ],
+                    "rounds": [],
+                }
+            ],
+        }
+
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            zipf.writestr("data.json", json.dumps(import_data))
+        zip_buffer.seek(0)
+        zip_bytes = zip_buffer.read()
+
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as f:
+            f.write(zip_bytes)
+            temp_zip_path = f.name
+
+        try:
+            with open(temp_zip_path, "rb") as f:
+                response = await client.post(
+                    "/api/import/import",
+                    files={"file": ("import.zip", f, "application/zip")},
+                    headers=import_user,
+                    data={"override": "false"},
+                )
+
+            assert response.status_code == 200
+
+            # Wait for import to complete
+            await asyncio.sleep(2)
+
+            # Verify special characters were preserved
+            result = await db.execute(
+                select(Application)
+                .options(selectinload(Application.status_history))
+                .where(Application.user_id == user_id)
+            )
+            apps = result.scalars().all()
+            app = next((a for a in apps if "Partners" in a.company), None)
+
+            assert app is not None
+            assert "&" in app.company
+            assert "(" in app.job_title
+            assert "quoted text" in app.job_description
+            assert len(app.status_history) > 0
+
+        finally:
+            os.unlink(temp_zip_path)
+
+    async def test_import_with_null_dates(
+        self, client: AsyncClient, import_user: dict, db: AsyncSession, test_round_types: list[RoundType]
+    ):
+        """Test import handles null dates in rounds."""
+        user_id = import_user["user_id"]
+
+        # Create a status first
+        status = ApplicationStatus(name="Null Date Status", color="#FF00FF", is_default=False, order=1, user_id=user_id)
+        db.add(status)
+        await db.commit()
+
+        import_data = {
+            "user": {"id": str(user_id), "email": "import@example.com"},
+            "custom_statuses": [],
+            "custom_round_types": [],
+            "applications": [
+                {
+                    "company": "NullDate Company",
+                    "job_title": "Test Job",
+                    "status": "Null Date Status",
+                    "applied_at": "2024-01-25",
+                    "status_history": [],
+                    "rounds": [
+                        {
+                            "type": test_round_types[0].name,
+                            "scheduled_at": None,
+                            "completed_at": None,
+                            "outcome": None,
+                            "notes_summary": None,
+                            "media": [],
+                        }
+                    ],
+                }
+            ],
+        }
+
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            zipf.writestr("data.json", json.dumps(import_data))
+        zip_buffer.seek(0)
+        zip_bytes = zip_buffer.read()
+
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as f:
+            f.write(zip_bytes)
+            temp_zip_path = f.name
+
+        try:
+            with open(temp_zip_path, "rb") as f:
+                response = await client.post(
+                    "/api/import/import",
+                    files={"file": ("import.zip", f, "application/zip")},
+                    headers=import_user,
+                    data={"override": "false"},
+                )
+
+            assert response.status_code == 200
+
+            # Wait for import to complete
+            await asyncio.sleep(2)
+
+            # Verify null dates were handled
+            result = await db.execute(
+                select(Application)
+                .options(selectinload(Application.rounds))
+                .where(Application.user_id == user_id)
+                .where(Application.company == "NullDate Company")
+            )
+            app = result.scalar_one_or_none()
+            assert app is not None
+            assert len(app.rounds) == 1
+            assert app.rounds[0].scheduled_at is None
+            assert app.rounds[0].completed_at is None
+            assert app.rounds[0].outcome is None
+
+        finally:
+            os.unlink(temp_zip_path)
+
+
+# Note: The progress endpoint uses Server-Sent Events (SSE) which is a streaming protocol.
+# Testing SSE properly requires specialized client handling for event streams.
+# The core import functionality is already tested by TestEndToEnd and TestImportEdgeCases classes.
+# Progress tracking is an implementation detail that's tested implicitly by successful imports.

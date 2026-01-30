@@ -322,7 +322,7 @@ async def import_applications(
 
             # Import media
             for media_data in round_data.media:
-                media_path = file_mapping.get(media_data.get('path', ''))
+                media_path = file_mapping.get(media_data.path or '')
                 if media_path:
                     media = RoundMedia(
                         round_id=round.id,
