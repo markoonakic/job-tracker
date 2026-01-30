@@ -241,7 +241,7 @@ export default function ApplicationForm() {
                 onBlur={handleJobUrlBlur}
                 placeholder="example.com or https://..."
                 className={`w-full px-3 py-2 bg-tertiary border rounded text-fg1 placeholder-gray focus:outline-none focus:border-aqua-bright transition-colors duration-200 ease-out ${
-                  jobUrlError ? 'border-red-bright' : 'border-transparent'
+                  jobUrlError ? 'border-red-bright' : 'border-muted'
                 }`}
               />
               {jobUrlError && (
