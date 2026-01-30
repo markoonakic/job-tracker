@@ -93,7 +93,7 @@ export default function FlameEmblem() {
   };
 
   return (
-    <div className="bg-secondary p-6 mb-6">
+    <div className="bg-secondary rounded-lg p-6 mb-6">
       <div className="flex flex-col items-center justify-center">
         {/* Emblem frame - Elden Ring inspired ornate border */}
         <div
