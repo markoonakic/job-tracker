@@ -2,8 +2,8 @@
 # Manual changes might be lost - proceed with caution!
 
 __metadata:
-  version: 8
-  cacheKey: 10c0
+  version: 6
+  cacheKey: 8
 
 "@emnapi/runtime@npm:^1.7.0":
   version: 1.8.1
@@ -608,13 +608,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chrome@npm:^0.0.268":
-  version: 0.0.268
-  resolution: "@types/chrome@npm:0.0.268"
+"@types/chrome@npm:^0.1.37":
+  version: 0.1.37
+  resolution: "@types/chrome@npm:0.1.37"
   dependencies:
-    "@types/filesystem": "npm:*"
-    "@types/har-format": "npm:*"
-  checksum: 10c0/2701a43ec00d102302adeb9c8b8ff3f7644c0359fada720e4c9c74f6fa4ac3b14ce231d4fbba743e6e758e9741f738d4d333b005e9a3ebb7fac23c13792bd532
+    "@types/filesystem": "*"
+    "@types/har-format": "*"
+  checksum: f05247372b35e74b3f858860122b7ed92d2cce8d950ab6239a2489a40b93c12c385214deeb0c6f1c5079648b550671889b715700b5cd2db9e96573b9c51fcafa
   languageName: node
   linkType: hard
 
@@ -648,10 +648,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webextension-polyfill@npm:^0.10.7":
-  version: 0.10.7
-  resolution: "@types/webextension-polyfill@npm:0.10.7"
-  checksum: 10c0/78f9153398172b66db74e02202146e078b9c8fe30a283f52e7ab58021fdb4d18be74555142ec83b878f9d05d98a0296ffbef8287aedd411d9503025fe8ddba36
+"@types/webextension-polyfill@npm:^0.12.5":
+  version: 0.12.5
+  resolution: "@types/webextension-polyfill@npm:0.12.5"
+  checksum: 8bad80a149d79df625022f719ac452c7c8e64234729009840e3e1b325d001add989e47b28f962c5e8bedb1cbb33e4e27ac4451236b6e73e64d628ee0b0ca9160
   languageName: node
   linkType: hard
 
@@ -871,9 +871,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fsevents@patch:fsevents@npm%3A~2.3.2#optional!builtin<compat/fsevents>, fsevents@patch:fsevents@npm%3A~2.3.3#optional!builtin<compat/fsevents>":
+"fsevents@patch:fsevents@npm%3A~2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@npm%3A~2.3.3#~builtin<compat/fsevents>":
   version: 2.3.3
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#optional!builtin<compat/fsevents>::version=2.3.3&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=df0bf1"
   dependencies:
     node-gyp: "npm:latest"
   conditions: os=darwin
@@ -1446,13 +1446,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tarnished-extension@workspace:."
   dependencies:
-    "@types/chrome": "npm:^0.0.268"
-    "@types/webextension-polyfill": "npm:^0.10.7"
-    prettier: "npm:^3.5.1"
-    sharp: "npm:^0.34.5"
-    typescript: "npm:^5.4.0"
-    vite: "npm:^5.4.0"
-    webextension-polyfill: "npm:^0.12.0"
+    "@types/chrome": ^0.1.37
+    "@types/webextension-polyfill": ^0.12.5
+    prettier: ^3.5.1
+    sharp: ^0.34.5
+    typescript: ^5.4.0
+    vite: ^5.4.0
+    webextension-polyfill: ^0.12.0
   languageName: unknown
   linkType: soft
 
@@ -1483,13 +1483,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.4.0#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@^5.4.0#~builtin<compat/typescript>":
   version: 5.9.3
-  resolution: "typescript@patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"
+  resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=5786d5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/ad09fdf7a756814dce65bc60c1657b40d44451346858eea230e10f2e95a289d9183b6e32e5c11e95acc0ccc214b4f36289dcad4bf1886b0adb84d711d336a430
+  checksum: a5a6dc399d3761ded54192031f11d3ad5df8001c7febe3fbbc8098efcb552cdf8f2f402b3618c56dafcd04fef63dee005f4900f608e185404caedc46480539ed
   languageName: node
   linkType: hard
 
